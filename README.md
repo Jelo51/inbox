@@ -57,7 +57,21 @@ refuse de s'exécuter avec `NODE_ENV=production`.
 
 Le jeu contient 40 annonces publiées réparties sur les huit catégories et les
 douze villes, plus quatre annonces en attente de modération dont deux
-manifestement frauduleuses.
+manifestement frauduleuses, et deux conversations réellement chiffrées.
+
+### Messagerie chiffrée en développement
+
+Les clés privées des comptes de démonstration ne sont pas en base : elles sont
+sauvegardées comme celles d'un vrai utilisateur, c'est-à-dire chiffrées par une
+phrase secrète. Pour lire les conversations de démonstration, connectez-vous,
+ouvrez **Messages**, puis saisissez la phrase secrète :
+
+```
+phrase-secrete-de-demonstration-2026
+```
+
+C'est le parcours réel de quelqu'un qui change d'appareil — pas un raccourci de
+développement.
 
 ---
 

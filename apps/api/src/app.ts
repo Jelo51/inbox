@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { apiV1Router } from './routes.js';
 import { MailService } from './modules/mail/service.js';
 import { createImageStorage, type ImageStorage } from './modules/images/storage.js';
+import { createNoopHub, type RealtimeHub } from './modules/messaging/realtime.js';
 
 export interface AppDependencies {
   env: Env;
@@ -20,9 +21,10 @@ export interface AppDependencies {
   /** Injectable pour que les tests observent les e-mails sans rien envoyer. */
   mail?: MailService;
   storage?: ImageStorage;
+  hub?: RealtimeHub;
 }
 
-export function createApp({ env, prisma, logger, mail, storage }: AppDependencies): Express {
+export function createApp({ env, prisma, logger, mail, storage, hub }: AppDependencies): Express {
   const app = express();
 
   // Derrière Nginx : sans cela, req.ip vaut l'adresse du reverse proxy et la
@@ -65,7 +67,10 @@ export function createApp({ env, prisma, logger, mail, storage }: AppDependencie
   }
 
   app.use('/api/v1', createRateLimiter('global', RATE_LIMITS.global));
-  app.use('/api/v1', apiV1Router(prisma, mail ?? new MailService(env, logger), imageStorage));
+  app.use(
+    '/api/v1',
+    apiV1Router(prisma, mail ?? new MailService(env, logger), imageStorage, hub ?? createNoopHub()),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -123,6 +123,32 @@ et quand.
   ne porte qu'un aperçu masqué. Le numéro complet exige une requête explicite,
   tracée dans `PhoneReveal` et limitée en fréquence.
 
+### Messagerie chiffrée
+
+- **Une paire de clés par compte**, pas par appareil. Le multi-appareil passe
+  par la restauration de la sauvegarde, pas par une clé de plus : sinon chaque
+  message devrait être chiffré autant de fois qu'il y a d'appareils.
+- **Chaque message est chiffré deux fois** : pour le destinataire, et pour
+  l'expéditeur lui-même. Sans cette seconde copie, on ne pourrait pas relire
+  ses propres messages après restauration sur un autre appareil.
+- **La clé privée ne quitte jamais l'appareil en clair.** Elle vit dans
+  IndexedDB. La sauvegarde envoyée au serveur est chiffrée par `nacl.secretbox`
+  avec une clé dérivée en argon2id de la phrase secrète, que le serveur ne voit
+  jamais. Le serveur stocke des octets inertes.
+- **L'empreinte est vérifiée côté serveur.** Un client modifié pourrait sinon
+  afficher une empreinte rassurante sur une clé qui ne l'est pas.
+- **Les clés retirées restent en base.** Les supprimer casserait le rattachement
+  des messages déjà échangés à la clé qui les a chiffrés.
+- **Les primitives vivent dans `apps/web/app/utils/e2ee.ts`**, sans dépendance
+  à Nuxt : elles sont ainsi testables directement, et le seed de l'API produit
+  exactement le même format (un test le vérifie sur les données réelles).
+- **Une conversation naît toujours d'une annonce.** Sans cette contrainte, la
+  messagerie deviendrait un canal de démarchage à froid.
+- **404 et non 403** sur une conversation dont on ne fait pas partie : répondre
+  « interdit » confirmerait son existence.
+- **Le repli en interrogation périodique n'est pas théorique** : les réseaux
+  mobiles coupent régulièrement les WebSockets.
+
 ### Sécurité et vie privée
 
 - **Le serveur ne peut pas lire les messages.** Le modèle `Message` n'a aucun
@@ -240,7 +266,7 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
 | 1. Fondations          | fait    |
 | 2. Auth et comptes     | fait    |
 | 3. Annonces            | fait    |
-| 4. Messagerie chiffrée | à faire |
+| 4. Messagerie chiffrée | fait    |
 | 5. Pro et paiements    | à faire |
 | 6. Modération et admin | à faire |
 | 7. Légal et conformité | à faire |

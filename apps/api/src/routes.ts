@@ -5,8 +5,10 @@ import { authRouter } from './modules/auth/routes.js';
 import { legalRouter } from './modules/legal/routes.js';
 import { listingRouter } from './modules/listings/routes.js';
 import { imageRouter, multerErrorHandler } from './modules/images/routes.js';
+import { messagingRouter } from './modules/messaging/routes.js';
 import type { MailService } from './modules/mail/service.js';
 import type { ImageStorage } from './modules/images/storage.js';
+import type { RealtimeHub } from './modules/messaging/realtime.js';
 
 /**
  * Routeur de la version 1 de l'API. Les modules métier viennent s'y greffer
@@ -17,6 +19,7 @@ export function apiV1Router(
   prisma: PrismaClient,
   mail: MailService,
   storage: ImageStorage,
+  hub: RealtimeHub,
 ): Router {
   const router = Router();
 
@@ -25,6 +28,7 @@ export function apiV1Router(
   router.use(authRouter(prisma, mail));
   router.use(listingRouter(prisma, storage));
   router.use(imageRouter(prisma, storage));
+  router.use(messagingRouter(prisma, hub));
 
   // Les erreurs de multer arrivent avant le gestionnaire global : elles ont
   // leur propre forme, qu'il faut traduire.

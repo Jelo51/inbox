@@ -3,6 +3,7 @@ import { parseEnv } from './config/env.js';
 import { createLogger } from './lib/logger.js';
 import { disconnectPrisma, getPrisma } from './lib/prisma.js';
 import { startScheduler } from './jobs/scheduler.js';
+import { createRealtimeHub } from './modules/messaging/realtime.js';
 // L'import enregistre les tâches planifiées auprès de l'ordonnanceur.
 import './jobs/listings.js';
 
@@ -13,16 +14,20 @@ async function main(): Promise<void> {
   const logger = createLogger();
   const prisma = getPrisma();
 
-  const app = createApp({ env, prisma, logger });
+  const hub = createRealtimeHub(env, prisma, logger);
+  const app = createApp({ env, prisma, logger, hub });
   const stopScheduler = startScheduler({ prisma, logger });
 
   const server = app.listen(env.PORT, () => {
     logger.info({ port: env.PORT, env: env.NODE_ENV }, 'API Inbox démarrée');
   });
 
+  hub.attach(server);
+
   const shutdown = (signal: string) => {
     logger.info({ signal }, 'arrêt en cours');
     stopScheduler();
+    void hub.close();
     server.close(() => {
       void disconnectPrisma().finally(() => process.exit(0));
     });

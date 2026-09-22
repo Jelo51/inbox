@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { seedCatalog } from './seed/catalog.js';
 import { SEED_CREDENTIALS, seedUsers } from './seed/users.js';
 import { seedListings } from './seed/listings.js';
+import { SEED_PASSPHRASE, seedConversations } from './seed/conversations.js';
 
 /**
  * Jeu de données de démonstration.
@@ -37,16 +38,24 @@ async function main(): Promise<void> {
     console.log('Annonces…');
     const stats = await seedListings(prisma, accounts, now);
 
+    console.log('Conversations chiffrées…');
+    const messagerie = await seedConversations(prisma, accounts, now);
+
     console.log('');
     console.log('Jeu de démonstration chargé :');
     console.log(`  ${stats.published} annonces publiées`);
     console.log(`  ${stats.pending} annonces en attente de modération`);
     console.log(`  ${stats.flagged} annonces repérées par le filtre automatique`);
+    console.log(
+      `  ${messagerie.conversations} conversations chiffrées (${messagerie.messages} messages)`,
+    );
     console.log('');
     console.log('Comptes (voir aussi le README de développement) :');
     for (const account of SEED_CREDENTIALS) {
       console.log(`  ${account.role.padEnd(6)} ${account.email}  ${account.password}`);
     }
+    console.log('');
+    console.log(`Phrase secrète de restauration des clés : ${SEED_PASSPHRASE}`);
   } finally {
     await prisma.$disconnect();
   }
