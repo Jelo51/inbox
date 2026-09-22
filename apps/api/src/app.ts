@@ -8,8 +8,10 @@ import type { Logger } from './lib/logger.js';
 import { securityMiddleware } from './middleware/security.js';
 import { createRateLimiter } from './middleware/rate-limit.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
+import { join } from 'node:path';
 import { apiV1Router } from './routes.js';
 import { MailService } from './modules/mail/service.js';
+import { createImageStorage, type ImageStorage } from './modules/images/storage.js';
 
 export interface AppDependencies {
   env: Env;
@@ -17,9 +19,10 @@ export interface AppDependencies {
   logger: Logger;
   /** Injectable pour que les tests observent les e-mails sans rien envoyer. */
   mail?: MailService;
+  storage?: ImageStorage;
 }
 
-export function createApp({ env, prisma, logger, mail }: AppDependencies): Express {
+export function createApp({ env, prisma, logger, mail, storage }: AppDependencies): Express {
   const app = express();
 
   // Derrière Nginx : sans cela, req.ip vaut l'adresse du reverse proxy et la
@@ -45,8 +48,24 @@ export function createApp({ env, prisma, logger, mail }: AppDependencies): Expre
   app.use(express.urlencoded({ extended: false, limit: '256kb' }));
   app.use(cookieParser());
 
+  const imageStorage = storage ?? createImageStorage(env, logger);
+
+  // En développement, les photos sont servies depuis le disque : Cloudinary
+  // n'est pas nécessaire pour lancer le projet. En production, la validation de
+  // configuration impose Cloudinary et ce dossier reste vide.
+  if (!env.isProduction) {
+    app.use(
+      '/media',
+      express.static(join(process.cwd(), 'uploads'), {
+        maxAge: '7d',
+        index: false,
+        dotfiles: 'deny',
+      }),
+    );
+  }
+
   app.use('/api/v1', createRateLimiter('global', RATE_LIMITS.global));
-  app.use('/api/v1', apiV1Router(prisma, mail ?? new MailService(env, logger)));
+  app.use('/api/v1', apiV1Router(prisma, mail ?? new MailService(env, logger), imageStorage));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

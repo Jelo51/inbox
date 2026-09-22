@@ -142,5 +142,134 @@
     "verified": "Adresse vérifiée",
     "unverified": "Adresse non vérifiée",
     "memberSince": "Membre depuis {date}"
+  },
+  "listing": {
+    "search": {
+      "title": "Rechercher une annonce",
+      "placeholder": "Que cherchez-vous ?",
+      "submit": "Rechercher",
+      "filters": "Filtres",
+      "category": "Catégorie",
+      "city": "Ville",
+      "allCategories": "Toutes les catégories",
+      "allCities": "Toutes les villes",
+      "priceMin": "Prix minimum",
+      "priceMax": "Prix maximum",
+      "condition": "État",
+      "sort": "Trier par",
+      "sortRecent": "Plus récentes",
+      "sortPriceAsc": "Prix croissant",
+      "sortPriceDesc": "Prix décroissant",
+      "apply": "Appliquer",
+      "reset": "Effacer les filtres",
+      "results": "{count} annonce | {count} annonces",
+      "noResults": "Aucune annonce ne correspond à votre recherche.",
+      "noResultsHint": "Essayez avec moins de filtres ou un autre mot-clé.",
+      "loadMore": "Voir plus d'annonces"
+    },
+    "card": {
+      "pro": "Pro",
+      "noPhoto": "Photo indisponible",
+      "views": "{count} vue | {count} vues"
+    },
+    "detail": {
+      "publishedOn": "Publiée le {date}",
+      "reference": "Référence",
+      "description": "Description",
+      "condition": "État",
+      "location": "Localisation",
+      "seller": "Vendeur",
+      "memberSince": "Membre depuis {date}",
+      "showPhone": "Afficher le numéro",
+      "phoneShown": "Numéro affiché",
+      "writeToSeller": "Écrire au vendeur",
+      "addFavorite": "Mettre en favori",
+      "removeFavorite": "Retirer des favoris",
+      "report": "Signaler cette annonce",
+      "seeSellerListings": "Voir toutes ses annonces",
+      "backToResults": "Retour aux annonces",
+      "photoOf": "Photo {index} sur {total} de {title}",
+      "safetyTitle": "Avant d'acheter",
+      "safetyText": "Voyez l'objet avant de payer. Ne versez jamais d'acompte par Mobile Money à un inconnu. Restez sur la messagerie Inbox.",
+      "safetyLink": "Lire les conseils de sécurité"
+    },
+    "condition": {
+      "NEW": "Neuf",
+      "LIKE_NEW": "Comme neuf",
+      "GOOD": "Bon état",
+      "FAIR": "État correct",
+      "FOR_PARTS": "Pour pièces",
+      "NOT_APPLICABLE": "Sans objet"
+    },
+    "status": {
+      "DRAFT": "Brouillon",
+      "PENDING": "En modération",
+      "PUBLISHED": "En ligne",
+      "REJECTED": "Refusée",
+      "EXPIRED": "Expirée",
+      "SOLD": "Vendue",
+      "DELETED": "Supprimée"
+    },
+    "priceUnit": {
+      "NONE": "",
+      "PER_MONTH": "/mois",
+      "PER_DAY": "/jour",
+      "PER_HOUR": "/heure",
+      "PER_SESSION": "/séance"
+    },
+    "publish": {
+      "title": "Déposer une annonce",
+      "photos": "Photos",
+      "photosHint": "De 1 à 8 photos. Les métadonnées, dont la position GPS, sont retirées automatiquement.",
+      "addPhoto": "Ajouter une photo",
+      "removePhoto": "Retirer cette photo",
+      "listingTitle": "Titre de l'annonce",
+      "titleHint": "Soyez précis : marque, modèle, état.",
+      "description": "Description",
+      "descriptionHint": "Décrivez l'objet, ses défauts éventuels et les conditions de remise.",
+      "price": "Prix (FCFA)",
+      "priceUnit": "Unité de prix",
+      "category": "Catégorie",
+      "city": "Ville",
+      "neighbourhood": "Quartier",
+      "condition": "État",
+      "submit": "Publier l'annonce",
+      "saveDraft": "Enregistrer comme brouillon",
+      "quotaLeft": "Il vous reste {count} annonce ce mois-ci | Il vous reste {count} annonces ce mois-ci",
+      "quotaUnlimited": "Annonces illimitées avec votre abonnement Pro",
+      "quotaExhausted": "Vous avez atteint votre quota mensuel.",
+      "quotaProLink": "Passer en Pro",
+      "pendingTitle": "Annonce envoyée",
+      "pendingText": "Elle sera visible après vérification par notre équipe. Vous recevrez un e-mail dès qu'elle sera publiée.",
+      "seeMyListings": "Voir mes annonces"
+    },
+    "mine": {
+      "title": "Mes annonces",
+      "empty": "Vous n'avez pas encore déposé d'annonce.",
+      "publishFirst": "Déposer ma première annonce",
+      "edit": "Modifier",
+      "renew": "Renouveler",
+      "markSold": "Marquer comme vendue",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer définitivement cette annonce ?",
+      "expiresOn": "Expire le {date}",
+      "rejectedFor": "Motif du refus",
+      "stats": "{views} vues · {favorites} favoris · {contacts} contacts"
+    },
+    "favorites": {
+      "title": "Mes favoris",
+      "empty": "Vous n'avez pas encore de favori."
+    },
+    "seller": {
+      "title": "Annonces de {name}",
+      "listingCount": "{count} annonce en ligne | {count} annonces en ligne"
+    },
+    "home": {
+      "heroTitle": "Achetez et vendez partout au Cameroun",
+      "heroText": "Des milliers d'annonces près de chez vous, une messagerie chiffrée et des annonces modérées.",
+      "browseCategories": "Parcourir les catégories",
+      "recent": "Annonces récentes",
+      "seeAll": "Tout voir"
+    }
   }
 }

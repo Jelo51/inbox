@@ -142,5 +142,134 @@
     "verified": "Address verified",
     "unverified": "Address not verified",
     "memberSince": "Member since {date}"
+  },
+  "listing": {
+    "search": {
+      "title": "Search ads",
+      "placeholder": "What are you looking for?",
+      "submit": "Search",
+      "filters": "Filters",
+      "category": "Category",
+      "city": "City",
+      "allCategories": "All categories",
+      "allCities": "All cities",
+      "priceMin": "Minimum price",
+      "priceMax": "Maximum price",
+      "condition": "Condition",
+      "sort": "Sort by",
+      "sortRecent": "Most recent",
+      "sortPriceAsc": "Price, low to high",
+      "sortPriceDesc": "Price, high to low",
+      "apply": "Apply",
+      "reset": "Clear filters",
+      "results": "{count} ad | {count} ads",
+      "noResults": "No ads match your search.",
+      "noResultsHint": "Try fewer filters or a different keyword.",
+      "loadMore": "Show more ads"
+    },
+    "card": {
+      "pro": "Pro",
+      "noPhoto": "Photo unavailable",
+      "views": "{count} view | {count} views"
+    },
+    "detail": {
+      "publishedOn": "Posted on {date}",
+      "reference": "Reference",
+      "description": "Description",
+      "condition": "Condition",
+      "location": "Location",
+      "seller": "Seller",
+      "memberSince": "Member since {date}",
+      "showPhone": "Show phone number",
+      "phoneShown": "Number shown",
+      "writeToSeller": "Message the seller",
+      "addFavorite": "Add to favourites",
+      "removeFavorite": "Remove from favourites",
+      "report": "Report this ad",
+      "seeSellerListings": "See all their ads",
+      "backToResults": "Back to ads",
+      "photoOf": "Photo {index} of {total} of {title}",
+      "safetyTitle": "Before you buy",
+      "safetyText": "See the item before you pay. Never send a Mobile Money deposit to someone you do not know. Stay on Inbox messaging.",
+      "safetyLink": "Read the safety advice"
+    },
+    "condition": {
+      "NEW": "New",
+      "LIKE_NEW": "Like new",
+      "GOOD": "Good condition",
+      "FAIR": "Fair condition",
+      "FOR_PARTS": "For parts",
+      "NOT_APPLICABLE": "Not applicable"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "PENDING": "Under review",
+      "PUBLISHED": "Online",
+      "REJECTED": "Rejected",
+      "EXPIRED": "Expired",
+      "SOLD": "Sold",
+      "DELETED": "Deleted"
+    },
+    "priceUnit": {
+      "NONE": "",
+      "PER_MONTH": "/month",
+      "PER_DAY": "/day",
+      "PER_HOUR": "/hour",
+      "PER_SESSION": "/session"
+    },
+    "publish": {
+      "title": "Post an ad",
+      "photos": "Photos",
+      "photosHint": "From 1 to 8 photos. Metadata, including GPS location, is stripped automatically.",
+      "addPhoto": "Add a photo",
+      "removePhoto": "Remove this photo",
+      "listingTitle": "Ad title",
+      "titleHint": "Be specific: brand, model, condition.",
+      "description": "Description",
+      "descriptionHint": "Describe the item, any flaws, and how it can be collected.",
+      "price": "Price (FCFA)",
+      "priceUnit": "Price unit",
+      "category": "Category",
+      "city": "City",
+      "neighbourhood": "Neighbourhood",
+      "condition": "Condition",
+      "submit": "Publish the ad",
+      "saveDraft": "Save as draft",
+      "quotaLeft": "You have {count} ad left this month | You have {count} ads left this month",
+      "quotaUnlimited": "Unlimited ads with your Pro subscription",
+      "quotaExhausted": "You have reached your monthly quota.",
+      "quotaProLink": "Go Pro",
+      "pendingTitle": "Ad submitted",
+      "pendingText": "It will appear once our team has checked it. You will get an email as soon as it is published.",
+      "seeMyListings": "See my ads"
+    },
+    "mine": {
+      "title": "My ads",
+      "empty": "You have not posted an ad yet.",
+      "publishFirst": "Post my first ad",
+      "edit": "Edit",
+      "renew": "Renew",
+      "markSold": "Mark as sold",
+      "delete": "Delete",
+      "deleteConfirm": "Permanently delete this ad?",
+      "expiresOn": "Expires on {date}",
+      "rejectedFor": "Reason for rejection",
+      "stats": "{views} views · {favorites} favourites · {contacts} contacts"
+    },
+    "favorites": {
+      "title": "My favourites",
+      "empty": "You have no favourites yet."
+    },
+    "seller": {
+      "title": "Ads from {name}",
+      "listingCount": "{count} ad online | {count} ads online"
+    },
+    "home": {
+      "heroTitle": "Buy and sell across Cameroon",
+      "heroText": "Thousands of ads near you, encrypted messaging and moderated listings.",
+      "browseCategories": "Browse categories",
+      "recent": "Recent ads",
+      "seeAll": "See all"
+    }
   }
 }

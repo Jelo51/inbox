@@ -3,6 +3,8 @@ import { parseEnv } from './config/env.js';
 import { createLogger } from './lib/logger.js';
 import { disconnectPrisma, getPrisma } from './lib/prisma.js';
 import { startScheduler } from './jobs/scheduler.js';
+// L'import enregistre les tâches planifiées auprès de l'ordonnanceur.
+import './jobs/listings.js';
 
 async function main(): Promise<void> {
   // parseEnv lève une erreur explicite si la configuration est incomplète :
