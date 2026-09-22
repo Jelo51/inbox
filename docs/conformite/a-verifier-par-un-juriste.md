@@ -5,38 +5,54 @@ seul. Il **ne remplace pas** les documents légaux : ceux-ci sont rédigés pour
 être complets et utilisables en l'état. Il signale les endroits où une erreur
 d'appréciation coûterait cher.
 
-Dernière mise à jour : phase 1 (fondations).
+Dernière mise à jour : phase 2 (authentification et comptes).
 
 ---
 
-## 1. Établissement de l'éditeur et droit applicable — priorité haute
+## 1. Établissement de l'éditeur et droit applicable
 
-**Le fait.** L'éditeur est aujourd'hui Flavien Noponkoue, personne physique,
-domicilié 2 avenue Robert Schuman, 51100 Reims, France. La société Inbox SARL
-n'est pas encore immatriculée. Le public visé est le Cameroun, puis l'Afrique
-centrale.
+**Confirmé par le porteur du projet.** L'adresse 2 avenue Robert Schuman,
+51100 Reims, France est bien celle de l'éditeur, et non un domicile temporaire.
+L'éditeur est aujourd'hui Flavien Noponkoue, personne physique, établi en
+France. La future SARL Inbox aura son siège au Cameroun.
 
-**Le problème.** Le RGPD s'applique au traitement effectué dans le cadre des
-activités d'un responsable de traitement **établi dans l'Union européenne**,
-indépendamment du lieu où se trouvent les personnes concernées. Tant que
-l'éditeur est établi en France, le RGPD s'applique donc vraisemblablement, en
-plus du droit camerounais. S'y ajoutent probablement les obligations françaises
-relatives aux éditeurs de services en ligne.
+**Conséquence retenue.** Le responsable du traitement étant établi dans l'Union
+européenne, le RGPD s'applique au traitement, indépendamment du fait que les
+utilisateurs visés se trouvent au Cameroun et en Afrique centrale. Les
+documents légaux sont donc rédigés sous **deux cadres cumulés** : le droit
+camerounais et le RGPD. Ce n'est plus une hypothèse de prudence mais le régime
+de référence du projet.
 
-**À faire trancher.**
+**Une inversion à ne pas manquer.** L'hébergement chez OVH en France ne pose
+aucune question de transfert au sens du RGPD, puisque les données restent dans
+l'Union. En revanche, il constitue bien un **transfert hors du Cameroun** au
+sens de la loi n° 2024/017, et doit être encadré comme tel. C'est l'inverse de
+l'intuition habituelle.
 
-- Le RGPD s'applique-t-il effectivement dans cette configuration ?
-- Quelle autorité de contrôle mentionner dans la politique de confidentialité :
-  la CNIL, l'autorité camerounaise de protection des données, ou les deux ?
-- Le siège de la future SARL sera-t-il au Cameroun ? Si oui, la situation
-  change à l'immatriculation, mais il faut savoir quoi écrire d'ici là.
-- Une déclaration ou une formalité est-elle exigée auprès de l'autorité
-  camerounaise, et à partir de quel moment ?
+**Ce qu'il reste à faire valider.**
 
-**Ce que fait le code en attendant.** La politique de confidentialité est
-structurée pour satisfaire les deux cadres (finalité, base légale, durée,
-destinataires, transferts). L'identité de l'éditeur vit dans des variables
-d'environnement : la corriger ne demandera aucune réécriture.
+- Quelle autorité de contrôle citer, et dans quel ordre : la CNIL au titre du
+  RGPD, l'autorité camerounaise de protection des données au titre de la loi
+  n° 2024/017, ou les deux, avec quelle articulation ?
+- Quelles formalités préalables auprès de l'autorité camerounaise, compte tenu
+  d'un responsable de traitement établi hors du Cameroun ?
+- La désignation d'un délégué à la protection des données est-elle obligatoire ?
+  L'activité n'implique ni traitement de données sensibles à grande échelle ni
+  surveillance systématique au sens du RGPD, mais le volume de données
+  personnelles traitées mérite un avis.
+- Un éditeur personne physique établi en France doit-il en outre satisfaire les
+  obligations françaises applicables aux éditeurs de services en ligne ?
+- **Au moment de l'immatriculation de la SARL au Cameroun** : le transfert de
+  la qualité d'éditeur vers la société déplace l'établissement hors de l'Union.
+  Le RGPD cessera-t-il alors de s'appliquer, ou continuera-t-il au titre des
+  moyens de traitement restés en France, ou de la direction effective depuis
+  Reims ? Cette question déterminera s'il faut publier une nouvelle version des
+  documents ou simplement en changer l'identité de l'éditeur.
+
+**Ce que fait le code.** L'identité de l'éditeur vit dans les variables
+d'environnement (`PUBLISHER_*`) et les documents sont versionnés en base : le
+changement d'éditeur ne demandera aucune réécriture, seulement une nouvelle
+version publiée.
 
 ---
 

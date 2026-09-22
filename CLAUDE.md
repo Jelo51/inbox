@@ -110,6 +110,17 @@ fournisseur réel ne demandera que de remplir les variables d'environnement.
 marchand. Si c'est confirmé, il faudra un agrégateur couvrant le Cameroun
 (Flutterwave, Paystack, Notch Pay, CinetPay) à la place de Stripe.
 
+### Cadre juridique
+
+**Le RGPD s'applique**, confirmé en phase 0 : l'éditeur est établi à Reims, en
+France, donc dans l'Union européenne, quel que soit le pays des utilisateurs.
+Les documents légaux et le registre des traitements sont rédigés sous deux
+cadres cumulés, droit camerounais et RGPD.
+
+Corollaire contre-intuitif : héberger chez OVH en France ne déclenche aucun
+transfert au sens du RGPD, mais constitue bien un transfert hors du Cameroun au
+sens de la loi n° 2024/017.
+
 ### Identité de l'éditeur
 
 Elle vit **entièrement dans les variables d'environnement** (`PUBLISHER_*`,
