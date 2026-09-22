@@ -35,6 +35,7 @@ export function createLogger() {
   const config = env();
   return pino({
     level: config.LOG_LEVEL,
+    enabled: config.LOG_LEVEL !== 'silent',
     redact: { paths: REDACTED, censor: '[supprimé]' },
     base: { service: 'inbox-api' },
     transport: config.isProduction

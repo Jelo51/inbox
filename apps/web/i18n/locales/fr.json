@@ -19,7 +19,10 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "close": "Fermer",
-    "currency": "FCFA"
+    "currency": "FCFA",
+    "required": "Champ obligatoire",
+    "optional": "facultatif",
+    "back": "Retour"
   },
   "footer": {
     "legal": "Informations légales",
@@ -45,5 +48,99 @@
       "message": "Le service rencontre un problème. Réessayez dans quelques instants.",
       "action": "Réessayer"
     }
+  },
+  "auth": {
+    "login": {
+      "title": "Se connecter",
+      "subtitle": "Retrouvez vos annonces, vos favoris et vos messages.",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "forgot": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Gratuit. Dix annonces par mois, messagerie chiffrée comprise.",
+      "displayName": "Nom affiché",
+      "displayNameHint": "C'est ce que les acheteurs verront.",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 12 caractères, avec une majuscule et un chiffre.",
+      "phone": "Téléphone (facultatif)",
+      "phoneHint": "Format +237 6XX XX XX XX. Jamais affiché sans votre accord.",
+      "adult": "Je déclare avoir 18 ans ou plus.",
+      "legal": "J'accepte les conditions générales d'utilisation et la politique de confidentialité.",
+      "legalVersions": "Version {version}, en vigueur depuis le {date}.",
+      "submit": "Créer mon compte",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "login": "Se connecter"
+    },
+    "forgot": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Indiquez votre adresse e-mail : si un compte y est associé, vous recevrez un lien de réinitialisation.",
+      "submit": "Envoyer le lien",
+      "sent": "Si un compte est associé à cette adresse, un lien vient d'être envoyé. Il est valable 30 minutes.",
+      "backToLogin": "Retour à la connexion"
+    },
+    "reset": {
+      "title": "Choisir un nouveau mot de passe",
+      "password": "Nouveau mot de passe",
+      "confirm": "Confirmer le mot de passe",
+      "mismatch": "Les deux mots de passe ne correspondent pas.",
+      "submit": "Enregistrer le nouveau mot de passe",
+      "done": "Votre mot de passe a été changé. Toutes vos sessions ont été fermées.",
+      "loginNow": "Se connecter"
+    },
+    "verify": {
+      "title": "Vérification de votre adresse",
+      "pending": "Vérification en cours",
+      "success": "Votre adresse e-mail est vérifiée. Vous pouvez publier une annonce et écrire aux vendeurs.",
+      "failed": "Ce lien est invalide ou a expiré.",
+      "resend": "Renvoyer le lien",
+      "resent": "Un nouveau lien vient d'être envoyé.",
+      "continue": "Continuer",
+      "bannerTitle": "Vérifiez votre adresse e-mail",
+      "bannerText": "Un lien vous a été envoyé. Tant qu'il n'est pas confirmé, vous ne pouvez ni publier d'annonce ni écrire à un vendeur."
+    },
+    "emailChange": {
+      "title": "Changement d'adresse e-mail",
+      "success": "Votre nouvelle adresse est confirmée.",
+      "failed": "Ce lien est invalide ou a expiré."
+    },
+    "legalUpdate": {
+      "title": "Nos conditions ont changé",
+      "intro": "Pour continuer à utiliser Inbox, merci de prendre connaissance de la nouvelle version et de l'accepter.",
+      "accept": "J'accepte",
+      "readDocument": "Lire le document"
+    },
+    "errors": {
+      "INVALID_CREDENTIALS": "Adresse e-mail ou mot de passe incorrect.",
+      "ACCOUNT_BANNED": "Ce compte a été banni.",
+      "ACCOUNT_SUSPENDED": "Ce compte est temporairement suspendu.",
+      "EMAIL_TAKEN": "Un compte existe déjà avec cette adresse.",
+      "RATE_LIMITED": "Trop de tentatives. Réessayez dans quelques minutes.",
+      "LEGAL_VERSION_OUTDATED": "Les conditions ont changé. Rechargez la page.",
+      "LEGAL_DOCUMENTS_UNAVAILABLE": "L'inscription est momentanément indisponible.",
+      "INVALID_TOKEN": "Ce lien est invalide ou a expiré.",
+      "INVALID_PASSWORD": "Mot de passe incorrect.",
+      "generic": "Une erreur est survenue. Réessayez."
+    }
+  },
+  "account": {
+    "title": "Mon compte",
+    "listings": "Mes annonces",
+    "favorites": "Favoris",
+    "messages": "Messages",
+    "subscription": "Abonnement et reçus",
+    "settings": "Paramètres",
+    "data": "Mes données",
+    "logout": "Se déconnecter",
+    "verified": "Adresse vérifiée",
+    "unverified": "Adresse non vérifiée",
+    "memberSince": "Membre depuis {date}"
   }
 }

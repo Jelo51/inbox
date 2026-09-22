@@ -88,7 +88,7 @@ export default tseslint.config(
   // clock.ts EST le service horloge : c'est le seul endroit où `new Date()`
   // a le droit d'exister.
   {
-    files: ['packages/shared/src/utils/clock.ts'],
+    files: ['packages/shared/src/utils/clock.ts', 'apps/api/src/lib/clock.ts'],
     rules: { 'no-restricted-syntax': 'off' },
   },
 

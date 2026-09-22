@@ -3,10 +3,12 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col">
+  <div>
     <a href="#contenu" class="sr-only-focusable btn-primary fixed left-4 top-4 z-50">
       {{ t('nav.skipToContent') }}
     </a>
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>

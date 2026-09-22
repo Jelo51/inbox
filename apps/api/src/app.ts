@@ -9,14 +9,17 @@ import { securityMiddleware } from './middleware/security.js';
 import { createRateLimiter } from './middleware/rate-limit.js';
 import { errorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { apiV1Router } from './routes.js';
+import { MailService } from './modules/mail/service.js';
 
 export interface AppDependencies {
   env: Env;
   prisma: PrismaClient;
   logger: Logger;
+  /** Injectable pour que les tests observent les e-mails sans rien envoyer. */
+  mail?: MailService;
 }
 
-export function createApp({ env, prisma, logger }: AppDependencies): Express {
+export function createApp({ env, prisma, logger, mail }: AppDependencies): Express {
   const app = express();
 
   // Derrière Nginx : sans cela, req.ip vaut l'adresse du reverse proxy et la
@@ -43,7 +46,7 @@ export function createApp({ env, prisma, logger }: AppDependencies): Express {
   app.use(cookieParser());
 
   app.use('/api/v1', createRateLimiter('global', RATE_LIMITS.global));
-  app.use('/api/v1', apiV1Router(prisma));
+  app.use('/api/v1', apiV1Router(prisma, mail ?? new MailService(env, logger)));
 
   app.use(notFoundHandler);
   app.use(errorHandler);

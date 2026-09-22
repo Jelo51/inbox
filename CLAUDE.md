@@ -66,6 +66,39 @@ Le front et l'API valident avec **les mêmes schémas Zod**, importés de
 | **Nuxt 3** et non 4         | Demandé au cahier des charges. `future.compatibilityVersion: 4` active déjà les comportements de Nuxt 4 utiles.             |
 | **pino 10**                 | `pino-http` 11 est incompatible avec pino 9 (`logger[stringifySym] is not a function`). Les deux doivent avancer ensemble.  |
 
+### Authentification
+
+- **Jeton d'accès de 15 minutes** (JWT HS256, `jose`), **jeton de
+  rafraîchissement de 30 jours** en cookie `httpOnly` `Secure` `SameSite=Lax`,
+  limité au chemin `/api/v1/auth`.
+- **Rotation à chaque usage, avec détection de rejeu.** Chaque connexion ouvre
+  une chaîne (`familyId`). Si un jeton déjà consommé revient, toute la chaîne
+  est révoquée : on ne sait pas distinguer le voleur du propriétaire, donc les
+  deux sont déconnectés.
+- **La session est revérifiée en base à chaque requête.** Un jeton d'accès
+  reste cryptographiquement valide jusqu'à son expiration ; une déconnexion
+  doit pourtant prendre effet immédiatement.
+- **CSRF par double soumission signée.** Le cookie CSRF est lisible par le
+  script (c'est le principe), mais sa valeur est signée avec `CSRF_SECRET` :
+  sans cela, un sous-domaine compromis pourrait fabriquer une paire cohérente.
+- **Aucune énumération de comptes.** Mot de passe faux et compte inexistant
+  donnent la même réponse, et le même temps de calcul (`wastePasswordTime`).
+  Le formulaire de mot de passe oublié répond toujours la même chose.
+
+### Documents légaux et inscription
+
+L'inscription **dépend** des CGU et de la politique de confidentialité publiées
+en base : sans elles, `/auth/legal-versions` répond 503 et le formulaire
+affiche un message explicite. C'est voulu — on ne fait pas accepter des
+conditions qui n'existent pas — mais cela crée une dépendance de la phase 2
+envers la phase 7. Ces deux documents sont donc rédigés avant les cinq autres.
+
+L'utilisateur accepte une **version identifiée**. Le serveur refuse une
+acceptation portant sur une version périmée, et une nouvelle version publiée
+réapparaît comme « à réaccepter » à la connexion suivante. Les acceptations
+précédentes restent en base : il faut pouvoir prouver ce qui a été accepté,
+et quand.
+
 ### Sécurité et vie privée
 
 - **Le serveur ne peut pas lire les messages.** Le modèle `Message` n'a aucun
@@ -140,9 +173,18 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
 - **pnpm 10 n'exécute plus les scripts d'installation** sans autorisation.
   Prisma, argon2 et esbuild en ont besoin : voir `onlyBuiltDependencies` dans
   `pnpm-workspace.yaml`.
-- **`new Date()` est interdit** hors de `packages/shared/src/utils/clock.ts`
-  (règle ESLint). Toute lecture d'horloge passe par le service, pour que les
-  tests puissent figer le temps.
+- **`new Date()` est interdit** hors des deux services horloge
+  (`packages/shared/src/utils/clock.ts` et `apps/api/src/lib/clock.ts`, règle
+  ESLint). Toute lecture d'heure passe par eux, pour que les tests puissent
+  figer le temps.
+- **Nuxt préfixe les composants par leur dossier.** Sans
+  `components: [{ path: '~/components', pathPrefix: false }]`,
+  `ui/FormField.vue` devient `<UiFormField>` et une balise `<FormField>` se
+  rend silencieusement comme un élément inconnu — le symptôme est une erreur
+  de déstructuration des props de slot, à mille lieues de la cause.
+- **Vue ne camélise pas les props de slot** : `:described-by` reste
+  `described-by` dans l'objet de portée. Passer `v-bind="{ describedBy }"`
+  lève l'ambiguïté.
 - **Nuxt importe automatiquement** `useI18n`, `useHead`, `computed`… : la règle
   `no-undef` est désactivée sur `apps/web`, TypeScript fait le travail.
 - **Le seed refuse de tourner si des annonces existent déjà**, et refuse

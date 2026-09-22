@@ -12,6 +12,11 @@ export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxtjs/i18n'],
 
+  // Sans `pathPrefix: false`, Nuxt nommerait les composants d'après leur
+  // dossier (`ui/FormField.vue` deviendrait `<UiFormField>`), et les balises
+  // non résolues se rendraient silencieusement comme des éléments inconnus.
+  components: [{ path: '~/components', pathPrefix: false }],
+
   css: [
     // Polices servies localement : aucun appel à Google Fonts, donc aucun
     // transfert de données vers un tiers au chargement de la page.

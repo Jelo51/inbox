@@ -4,6 +4,8 @@
  * complète plutôt que de la contourner.
  */
 process.env.NODE_ENV = 'test';
+// Sans cela, chaque requête d'une suite API noie le rapport de test.
+process.env.LOG_LEVEL ??= 'silent';
 process.env.APP_URL ??= 'http://localhost:3000';
 process.env.API_URL ??= 'http://localhost:3001';
 process.env.DATABASE_URL ??= 'postgresql://inbox@127.0.0.1:5432/inbox?schema=public';

@@ -13,7 +13,7 @@ const secret = (min = 32) => z.string().min(min, `Secret trop court : ${min} car
 const baseSchema = z.object({
   NODE_ENV: nodeEnvSchema.default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 
   /** Origine publique du site, utilisée pour les liens des e-mails et la CSP. */
   APP_URL: z.string().url(),
