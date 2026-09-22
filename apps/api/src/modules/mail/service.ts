@@ -3,7 +3,10 @@ import type { Env } from '../../config/env.js';
 import type { Logger } from '../../lib/logger.js';
 import { createMailTransport, type MailTransport } from './transport.js';
 import {
+  accountSuspendedTemplate,
   emailChangeTemplate,
+  listingApprovedTemplate,
+  listingRejectedTemplate,
   passwordChangedTemplate,
   passwordResetTemplate,
   paymentConfirmedTemplate,
@@ -93,5 +96,32 @@ export class MailService {
     details: { amountLabel: string; endsAt: string; cancelled: boolean },
   ): Promise<void> {
     await this.deliver(recipient, renewalNoticeTemplate(this.context(recipient), details));
+  }
+
+  async sendListingApproved(
+    recipient: MailRecipient,
+    details: { title: string; slug: string; listingId: string },
+  ): Promise<void> {
+    await this.deliver(
+      recipient,
+      listingApprovedTemplate(this.context(recipient), {
+        title: details.title,
+        url: `${this.env.APP_URL}/annonce/${details.slug}-${details.listingId}`,
+      }),
+    );
+  }
+
+  async sendListingRejected(
+    recipient: MailRecipient,
+    details: { title: string; reason: string; note: string | null },
+  ): Promise<void> {
+    await this.deliver(recipient, listingRejectedTemplate(this.context(recipient), details));
+  }
+
+  async sendAccountSuspended(
+    recipient: MailRecipient,
+    details: { reason: string; until: string | null },
+  ): Promise<void> {
+    await this.deliver(recipient, accountSuspendedTemplate(this.context(recipient), details));
   }
 }

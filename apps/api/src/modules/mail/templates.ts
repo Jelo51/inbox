@@ -279,3 +279,107 @@ export function renewalNoticeTemplate(
 
   return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
 }
+
+/** Libellés des motifs de refus, tels que l'auteur les reçoit. */
+const REJECTION_LABELS: Record<string, Record<Locale, string>> = {
+  PROHIBITED_ITEM: {
+    fr: 'Produit ou service interdit à la vente',
+    en: 'Item or service not allowed for sale',
+  },
+  COUNTERFEIT: { fr: 'Contrefaçon suspectée', en: 'Suspected counterfeit' },
+  MISLEADING_PRICE: { fr: 'Prix trompeur ou incohérent', en: 'Misleading or inconsistent price' },
+  WRONG_CATEGORY: { fr: 'Catégorie inadaptée', en: 'Wrong category' },
+  POOR_QUALITY_PHOTOS: {
+    fr: 'Photos inexploitables ou sans rapport avec l’annonce',
+    en: 'Photos unusable or unrelated to the ad',
+  },
+  DUPLICATE: { fr: 'Annonce en double', en: 'Duplicate ad' },
+  CONTACT_IN_DESCRIPTION: {
+    fr: 'Coordonnées dans la description',
+    en: 'Contact details in the description',
+  },
+  SUSPECTED_SCAM: { fr: 'Tentative d’arnaque suspectée', en: 'Suspected scam' },
+  ADULT_CONTENT: { fr: 'Contenu réservé aux adultes', en: 'Adult content' },
+  OTHER: { fr: 'Non conforme aux règles de publication', en: 'Does not meet the posting rules' },
+};
+
+export function listingApprovedTemplate(
+  ctx: TemplateContext,
+  details: { title: string; url: string },
+): RenderedEmail {
+  const fr: Layout = {
+    title: 'Votre annonce est en ligne',
+    intro: `Votre annonce « ${details.title} » a été vérifiée et vient d'être publiée.`,
+    body: ['Elle restera en ligne 60 jours. Vous pourrez la renouveler avant son échéance.'],
+    action: { label: 'Voir mon annonce', url: details.url },
+  };
+  const en: Layout = {
+    title: 'Your ad is online',
+    intro: `Your ad "${details.title}" has been checked and is now published.`,
+    body: ['It stays online for 60 days. You can renew it before it expires.'],
+    action: { label: 'View my ad', url: details.url },
+  };
+  return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
+}
+
+/**
+ * Refus d'annonce. Le motif est toujours présent : un refus qu'on n'explique
+ * pas laisse l'auteur sans moyen de corriger, et se traduit par une nouvelle
+ * soumission identique.
+ */
+export function listingRejectedTemplate(
+  ctx: TemplateContext,
+  details: { title: string; reason: string; note: string | null },
+): RenderedEmail {
+  const label =
+    REJECTION_LABELS[details.reason]?.[ctx.locale] ?? REJECTION_LABELS.OTHER![ctx.locale];
+
+  const fr: Layout = {
+    title: 'Votre annonce n’a pas été publiée',
+    intro: `Votre annonce « ${details.title} » n'a pas pu être publiée.`,
+    body: [
+      `Motif : ${label}`,
+      ...(details.note ? [`Précision de l'équipe : ${details.note}`] : []),
+      'Vous pouvez la corriger et la soumettre à nouveau depuis vos annonces.',
+    ],
+    action: { label: 'Mes annonces', url: `${ctx.appUrl}/compte/annonces` },
+    outro: 'Les règles de publication sont consultables depuis le pied de page du site.',
+  };
+
+  const en: Layout = {
+    title: 'Your ad was not published',
+    intro: `Your ad "${details.title}" could not be published.`,
+    body: [
+      `Reason: ${label}`,
+      ...(details.note ? [`Note from the team: ${details.note}`] : []),
+      'You can correct it and submit it again from your ads.',
+    ],
+    action: { label: 'My ads', url: `${ctx.appUrl}/compte/annonces` },
+    outro: 'The posting rules are linked from the footer of the site.',
+  };
+
+  return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
+}
+
+export function accountSuspendedTemplate(
+  ctx: TemplateContext,
+  details: { reason: string; until: string | null },
+): RenderedEmail {
+  const fr: Layout = {
+    title: details.until ? 'Votre compte est suspendu' : 'Votre compte a été banni',
+    intro: details.until
+      ? `Votre compte Inbox est suspendu jusqu'au ${details.until}.`
+      : 'Votre compte Inbox a été banni.',
+    body: [`Motif : ${details.reason}`],
+    outro: 'Si vous estimez qu’il s’agit d’une erreur, répondez à ce message.',
+  };
+  const en: Layout = {
+    title: details.until ? 'Your account is suspended' : 'Your account has been banned',
+    intro: details.until
+      ? `Your Inbox account is suspended until ${details.until}.`
+      : 'Your Inbox account has been banned.',
+    body: [`Reason: ${details.reason}`],
+    outro: 'If you believe this is a mistake, reply to this message.',
+  };
+  return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
+}

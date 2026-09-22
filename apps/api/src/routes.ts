@@ -7,6 +7,7 @@ import { listingRouter } from './modules/listings/routes.js';
 import { imageRouter, multerErrorHandler } from './modules/images/routes.js';
 import { messagingRouter } from './modules/messaging/routes.js';
 import { billingRouter } from './modules/billing/routes.js';
+import { adminRouter } from './modules/admin/routes.js';
 import type { BillingDeps } from './modules/billing/service.js';
 import type { MailService } from './modules/mail/service.js';
 import type { ImageStorage } from './modules/images/storage.js';
@@ -33,6 +34,7 @@ export function apiV1Router(
   router.use(imageRouter(prisma, storage));
   router.use(messagingRouter(prisma, hub));
   router.use(billingRouter(prisma, billing));
+  router.use(adminRouter(prisma, mail));
 
   // Les erreurs de multer arrivent avant le gestionnaire global : elles ont
   // leur propre forme, qu'il faut traduire.

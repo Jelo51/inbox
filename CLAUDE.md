@@ -163,6 +163,13 @@ et quand.
   déclencheur PostgreSQL refuse tout `UPDATE`, et n'autorise `DELETE` qu'au-delà
   de la durée de conservation de cinq ans. Une purge légale reste possible, un
   effacement opportuniste non.
+  La seule modification tolérée est le **détachement de l'auteur**
+  (`actorId` mis à NULL). Elle est indispensable : PostgreSQL applique
+  `ON DELETE SET NULL` par un `UPDATE` de la ligne enfant, donc sans cette
+  exception un compte ayant modéré ne pouvait plus jamais être supprimé — ce
+  qui est incompatible avec le droit à l'effacement. Le reste de la ligne doit
+  être rigoureusement identique, sinon la modification est refusée
+  (migration `20260922200000`).
 - **Les polices sont servies localement** via `@fontsource`. Charger Google
   Fonts enverrait l'adresse IP de chaque visiteur à un tiers, sans base légale
   et sans consentement.
@@ -219,6 +226,30 @@ marchand. Si c'est confirmé, il faudra un agrégateur couvrant le Cameroun
   modérateur ou un administrateur qui s'abonne garde son rôle.
 - **Aucun prélèvement automatique.** Le renouvellement est à l'initiative de
   l'utilisateur, avec une relance par e-mail trois jours avant l'échéance.
+
+### Modération et back-office
+
+- **Les gardes sont montés sur le préfixe `/admin`**, pas sur le routeur nu.
+  `router.use(mw)` s'applique à toute requête qui traverse le routeur, y
+  compris celles qui ne correspondent à aucune route : une URL inconnue
+  répondait 401 au lieu de 404, et tout module ajouté ensuite aurait hérité
+  silencieusement de l'authentification.
+- **Un refus sans motif n'existe pas.** Le motif vient d'une liste fermée et
+  part à l'auteur par e-mail. Une décision qu'on ne peut pas expliquer produit
+  une nouvelle soumission identique.
+- **Le filtre automatique ordonne la file, il ne décide pas.** Les annonces
+  repérées remontent en tête par score de risque ; un humain tranche.
+- **Deux modérateurs ne peuvent pas trancher la même annonce** : la seconde
+  décision reçoit un 409 plutôt que d'écraser la première.
+- **Suspension et bannissement ferment les sessions immédiatement.** Sans cela
+  la décision resterait sans effet le temps d'un jeton d'accès, soit quinze
+  minutes.
+- **Un modérateur ne sanctionne pas un membre de l'équipe**, et un
+  administrateur ne change pas son propre rôle : c'est la façon la plus simple
+  de se retrouver sans aucun administrateur, ou de neutraliser la modération
+  depuis un compte compromis.
+- **Les adresses e-mail sont masquées dans la liste des membres** et ne
+  s'affichent qu'au détail : un écran partagé n'expose pas toute la base.
 
 ### Cadre juridique
 
@@ -320,7 +351,7 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
 | 3. Annonces            | fait    |
 | 4. Messagerie chiffrée | fait    |
 | 5. Pro et paiements    | fait    |
-| 6. Modération et admin | à faire |
+| 6. Modération et admin | fait    |
 | 7. Légal et conformité | à faire |
 | 8. Finitions           | à faire |
 | 9. Déploiement         | à faire |
