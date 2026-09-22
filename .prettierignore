@@ -1,0 +1,8 @@
+node_modules
+dist
+.output
+.nuxt
+coverage
+pnpm-lock.yaml
+docs/design-reference
+apps/api/prisma/migrations

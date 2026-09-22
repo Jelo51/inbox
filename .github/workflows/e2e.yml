@@ -1,0 +1,52 @@
+name: Tests de bout en bout
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  playwright:
+    name: Parcours critiques
+    runs-on: ubuntu-latest
+    # Les parcours E2E arrivent en phase 8 ; le job existe dès maintenant pour
+    # que l'infrastructure soit en place et qu'il n'y ait rien à improviser.
+    if: ${{ hashFiles('apps/web/tests/e2e/**/*.spec.ts') != '' }}
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: inbox
+          POSTGRES_PASSWORD: inbox
+          POSTGRES_DB: inbox
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U inbox -d inbox"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://inbox:inbox@localhost:5432/inbox?schema=public
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: '10.33.0' }
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: pnpm }
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @inbox/shared build
+      - run: pnpm --filter @inbox/api exec prisma migrate deploy
+      - run: pnpm db:seed
+      - run: pnpm --filter @inbox/web exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7

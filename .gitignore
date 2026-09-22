@@ -1,4 +1,34 @@
-node_modules
-dist
+# dépendances
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+.output/
+.nuxt/
+.nitro/
+build/
+*.tsbuildinfo
+
+# environnement — aucun secret dans le dépôt
+.env
+.env.*
+!.env.example
+
+# tests et couverture
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# outils
 .vercel
 .DS_Store
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# données locales
+docker/volumes/
+uploads/

@@ -1,56 +1,115 @@
-# Inbox — démo
+# Inbox
 
-Marketplace du Cameroun. Démo d'interface, sans backend : tout l'état vit en mémoire
-(les données sont réinitialisées à chaque rechargement de la page).
+Marketplace de petites annonces pour le Cameroun : dépôt d'annonces,
+recherche, messagerie chiffrée de bout en bout, abonnement professionnel.
 
-## Lancer en local
+- **Front** : Nuxt 3 en rendu serveur, TypeScript, Tailwind, français et anglais
+- **API** : Express + TypeScript, REST versionnée `/api/v1`
+- **Base** : PostgreSQL 16 avec Prisma
 
-```bash
-npm install
-npm run dev
-```
+---
 
-## Déployer sur Vercel
+## Démarrage
 
-### Option A — en ligne de commande (le plus rapide)
-
-```bash
-npm i -g vercel
-vercel        # aperçu
-vercel --prod # production
-```
-
-### Option B — via GitHub
-
-1. Pousser ce dossier **à la racine** du dépôt (le `package.json` doit être à la racine).
-2. Sur Vercel : *Add New → Project*, importer le dépôt.
-3. Vérifier les réglages, ils doivent être :
-
-| Réglage           | Valeur       |
-| ----------------- | ------------ |
-| Framework Preset  | `Vite`       |
-| Root Directory    | `./`         |
-| Build Command     | `npm run build` |
-| Output Directory  | `dist`       |
-| Install Command   | `npm install`   |
-
-## En cas de 404 : NOT_FOUND
-
-Cette erreur vient de Vercel, pas du code : il ne trouve pas de page à servir.
-Trois causes, par ordre de fréquence :
-
-1. **Root Directory mal réglé.** Si le projet est dans un sous-dossier du dépôt
-   (`app/`, `frontend/`, `demo/`…), il faut l'indiquer dans
-   *Settings → General → Root Directory*. C'est la cause la plus fréquente.
-2. **Output Directory incorrect.** Vite produit `dist`, pas `build` ni `out`.
-3. **Aucun `index.html` déployé.** Un fichier `.jsx` seul ne suffit pas : il faut
-   le projet complet (c'est ce que corrige ce dossier).
-
-Pour vérifier avant de déployer :
+### Avec Docker (recommandé)
 
 ```bash
-npm run build && npm run preview
+cp .env.example .env
+docker compose up
 ```
 
-Si `npm run preview` affiche bien le site en local, le build est bon et le problème
-est côté configuration Vercel.
+Au premier lancement, les migrations sont appliquées et le jeu de démonstration
+est chargé automatiquement. Aucune étape manuelle.
+
+| Service              | Adresse                      |
+| -------------------- | ---------------------------- |
+| Front                | http://localhost:3000        |
+| API                  | http://localhost:3001/api/v1 |
+| Statistiques (Umami) | http://localhost:3002        |
+| PostgreSQL           | localhost:5432               |
+
+### Sans Docker
+
+Prérequis : Node.js 20 ou 22, pnpm 10, PostgreSQL 16 avec l'extension
+`unaccent` disponible.
+
+```bash
+cp .env.example .env            # ajuster DATABASE_URL et les trois secrets
+pnpm install
+pnpm --filter @inbox/shared build
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
+```
+
+---
+
+## Comptes de démonstration
+
+Créés par `pnpm db:seed`. **Ils n'existent qu'en développement** : le seed
+refuse de s'exécuter avec `NODE_ENV=production`.
+
+| Rôle           | Adresse                | Mot de passe               |
+| -------------- | ---------------------- | -------------------------- |
+| Particulier    | `utilisateur@inbox.cm` | `Demo-Utilisateur-2026`    |
+| Professionnel  | `pro@inbox.cm`         | `Demo-Professionnel-2026`  |
+| Administrateur | `admin@inbox.cm`       | `Demo-Administrateur-2026` |
+
+Le jeu contient 40 annonces publiées réparties sur les huit catégories et les
+douze villes, plus quatre annonces en attente de modération dont deux
+manifestement frauduleuses.
+
+---
+
+## Variables d'environnement
+
+Toutes sont décrites et commentées dans [`.env.example`](.env.example). L'API
+les valide au démarrage et **refuse de démarrer** si l'une manque ou est mal
+formée, plutôt que de tomber en panne plus tard.
+
+Les trois obligatoires en local :
+
+```bash
+DATABASE_URL=postgresql://inbox:inbox@localhost:5432/inbox?schema=public
+JWT_SECRET=$(openssl rand -base64 48)
+REFRESH_SECRET=$(openssl rand -base64 48)
+CSRF_SECRET=$(openssl rand -base64 48)
+```
+
+En production, la validation exige en plus : Cloudinary, Resend, un fournisseur
+de paiement réel (le fournisseur de démonstration est refusé), un `APP_URL` en
+HTTPS et trois secrets distincts.
+
+---
+
+## Commandes
+
+```bash
+pnpm dev            # API et front en parallèle
+pnpm build          # construction complète
+pnpm lint           # ESLint
+pnpm format:check   # Prettier
+pnpm typecheck      # TypeScript sur les trois paquets
+pnpm test           # tests unitaires et tests d'API
+pnpm test:e2e       # parcours Playwright
+pnpm db:migrate     # migrations Prisma
+pnpm db:seed        # jeu de démonstration
+pnpm db:studio      # explorateur de base
+```
+
+---
+
+## Documentation
+
+| Fichier                  | Contenu                                                         |
+| ------------------------ | --------------------------------------------------------------- |
+| [`CLAUDE.md`](CLAUDE.md) | Décisions d'architecture, conventions, pièges connus            |
+| `docs/design-reference/` | Maquette d'interface de référence                               |
+| `docs/conformite/`       | Registre des traitements, points à faire valider par un juriste |
+| `docs/deploiement/`      | Mise en ligne, sauvegardes, restauration                        |
+
+---
+
+## Licence
+
+Projet privé. Tous droits réservés.

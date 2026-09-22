@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Inbox",
+    "tagline": "La marketplace du Cameroun"
+  },
+  "nav": {
+    "home": "Accueil",
+    "search": "Rechercher",
+    "publish": "Déposer",
+    "messages": "Messages",
+    "account": "Mon compte",
+    "favorites": "Favoris",
+    "pro": "Offre Pro",
+    "skipToContent": "Aller au contenu principal"
+  },
+  "common": {
+    "loading": "Chargement",
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "close": "Fermer",
+    "currency": "FCFA"
+  },
+  "footer": {
+    "legal": "Informations légales",
+    "mentions": "Mentions légales",
+    "terms": "Conditions générales d'utilisation",
+    "sales": "Conditions générales de vente",
+    "privacy": "Politique de confidentialité",
+    "cookies": "Politique cookies",
+    "rules": "Règles de publication",
+    "safety": "Conseils de sécurité",
+    "manageCookies": "Gérer mes cookies",
+    "help": "Centre d'aide",
+    "contact": "Contact"
+  },
+  "error": {
+    "notFound": {
+      "title": "Page introuvable",
+      "message": "Cette page n'existe pas ou a été retirée.",
+      "action": "Retourner à l'accueil"
+    },
+    "server": {
+      "title": "Une erreur est survenue",
+      "message": "Le service rencontre un problème. Réessayez dans quelques instants.",
+      "action": "Réessayer"
+    }
+  }
+}

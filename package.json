@@ -1,20 +1,50 @@
 {
-  "name": "inbox-demo",
+  "name": "inbox",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20.11 <23"
   },
-  "dependencies": {
-    "lucide-react": "^0.383.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --filter @inbox/shared build && pnpm --filter @inbox/api build && pnpm --filter @inbox/web build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @inbox/web test:e2e",
+    "db:migrate": "pnpm --filter @inbox/api db:migrate",
+    "db:generate": "pnpm --filter @inbox/api db:generate",
+    "db:seed": "pnpm --filter @inbox/api db:seed",
+    "db:reset": "pnpm --filter @inbox/api db:reset",
+    "db:studio": "pnpm --filter @inbox/api db:studio",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.3.1"
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.20.4",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.11.0",
+    "globals": "^17.12.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "prettier": "^3.9.8",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1",
+    "vue-eslint-parser": "^10.4.1"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css}": [
+      "prettier --write"
+    ]
   }
 }

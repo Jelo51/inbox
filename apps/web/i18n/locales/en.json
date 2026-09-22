@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Inbox",
+    "tagline": "Cameroon's marketplace"
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "publish": "Post",
+    "messages": "Messages",
+    "account": "My account",
+    "favorites": "Favourites",
+    "pro": "Pro plan",
+    "skipToContent": "Skip to main content"
+  },
+  "common": {
+    "loading": "Loading",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "currency": "FCFA"
+  },
+  "footer": {
+    "legal": "Legal information",
+    "mentions": "Legal notice",
+    "terms": "Terms of use",
+    "sales": "Terms of sale",
+    "privacy": "Privacy policy",
+    "cookies": "Cookie policy",
+    "rules": "Posting rules",
+    "safety": "Safety advice",
+    "manageCookies": "Manage cookies",
+    "help": "Help centre",
+    "contact": "Contact"
+  },
+  "error": {
+    "notFound": {
+      "title": "Page not found",
+      "message": "This page does not exist or has been removed.",
+      "action": "Back to home"
+    },
+    "server": {
+      "title": "Something went wrong",
+      "message": "The service is having trouble. Please try again shortly.",
+      "action": "Try again"
+    }
+  }
+}

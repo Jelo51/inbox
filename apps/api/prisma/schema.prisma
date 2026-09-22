@@ -1,0 +1,807 @@
+// Schéma de données Inbox.
+//
+// Deux principes structurent ce fichier :
+//   1. Le serveur ne peut pas lire les messages. Le modèle `Message` ne porte
+//      aucun champ de texte en clair — un test vérifie cette propriété.
+//   2. La suppression est réelle par défaut. `deletedAt` n'existe que là où une
+//      obligation légale impose de conserver une trace (paiements, audit).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [unaccent]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Comptes
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  USER
+  PRO
+  MODERATOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  DELETED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  displayName  String
+  /// Jamais affiché en clair : l'accès passe par une action tracée et limitée.
+  phone        String?
+  bio          String?    @db.VarChar(500)
+  avatarUrl    String?
+  locale       String     @default("fr")
+  role         UserRole   @default(USER)
+  status       UserStatus @default(ACTIVE)
+
+  emailVerifiedAt DateTime?
+  /// Déclaration de majorité recueillie à l'inscription (18 ans minimum).
+  adultDeclaredAt DateTime?
+
+  suspendedUntil DateTime?
+  suspendedFor   String?
+  bannedAt       DateTime?
+  bannedFor      String?
+
+  cityId String?
+  city   City?   @relation(fields: [cityId], references: [id], onDelete: SetNull)
+
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  /// Anonymisation immédiate à la suppression du compte ; purge par tâche planifiée.
+  anonymizedAt DateTime?
+
+  sessions              Session[]
+  emailTokens           EmailToken[]
+  publicKeys            PublicKey[]
+  keyBackup             KeyBackup?
+  listings              Listing[]
+  favorites             Favorite[]
+  phoneReveals          PhoneReveal[]
+  conversationsAsBuyer  Conversation[]     @relation("ConversationBuyer")
+  conversationsAsSeller Conversation[]     @relation("ConversationSeller")
+  messagesSent          Message[]          @relation("MessageSender")
+  blocksMade            Block[]            @relation("BlockAuthor")
+  blocksReceived        Block[]            @relation("BlockTarget")
+  reportsMade           Report[]           @relation("ReportAuthor")
+  reportsReceived       Report[]           @relation("ReportedUser")
+  auditLogs             AuditLog[]         @relation("AuditActor")
+  subscriptions         Subscription[]
+  payments              Payment[]
+  legalAcceptances      LegalAcceptance[]
+  consentRecords        ConsentRecord[]
+  notificationPrefs     NotificationPreference?
+
+  @@index([status, createdAt])
+  @@index([role])
+  @@index([cityId])
+}
+
+/// Jeton de rafraîchissement. Rotation à chaque usage, révocation en base.
+model Session {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Empreinte SHA-256 du jeton : le jeton lui-même n'est jamais stocké.
+  tokenHash String    @unique
+  /// Chaîne de rotation : permet de détecter la réutilisation d'un jeton volé.
+  familyId  String
+  userAgent String?   @db.VarChar(255)
+  /// Adresse IP tronquée (/24 ou /48), jamais complète.
+  ipPrefix  String?   @db.VarChar(45)
+
+  expiresAt DateTime
+  revokedAt DateTime?
+  revokedBy String?
+  createdAt DateTime  @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@index([userId, revokedAt])
+  @@index([familyId])
+  @@index([expiresAt])
+}
+
+enum EmailTokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  EMAIL_CHANGE
+}
+
+/// Jeton à usage unique envoyé par e-mail.
+model EmailToken {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  purpose   EmailTokenPurpose
+  tokenHash String            @unique
+  /// Pour un changement d'adresse : la nouvelle adresse en attente de confirmation.
+  payload   String?
+
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
+}
+
+model NotificationPreference {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  emailOnNewMessage           Boolean @default(true)
+  emailOnListingApproved      Boolean @default(true)
+  emailOnListingRejected      Boolean @default(true)
+  emailOnListingExpiring      Boolean @default(true)
+  emailOnSubscriptionRenewal  Boolean @default(true)
+  emailProductNews            Boolean @default(false)
+
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chiffrement de bout en bout
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Clé publique X25519 d'un appareil. La clé privée ne quitte jamais l'appareil.
+model PublicKey {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// 32 octets encodés en base64.
+  key         String  @unique
+  /// Empreinte lisible affichée aux deux correspondants pour vérification manuelle.
+  fingerprint String
+  deviceLabel String? @db.VarChar(80)
+
+  createdAt  DateTime  @default(now())
+  /// Une clé retirée reste en base : les anciens messages restent déchiffrables.
+  retiredAt  DateTime?
+  lastSeenAt DateTime  @default(now())
+
+  @@index([userId, retiredAt])
+}
+
+/// Sauvegarde facultative de la clé privée, chiffrée côté client.
+/// Le serveur stocke un blob qu'il ne peut pas ouvrir : la phrase secrète
+/// n'est jamais transmise.
+model KeyBackup {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  encryptedPrivateKey String
+  salt                String
+  nonce               String
+  kdf                 String @default("argon2id")
+  kdfParams           Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Catalogue
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Category {
+  id       String @id @default(cuid())
+  slug     String @unique
+  nameFr   String
+  nameEn   String
+  icon     String
+  position Int    @default(0)
+
+  listings Listing[]
+
+  @@index([position])
+}
+
+model City {
+  id       String @id @default(cuid())
+  slug     String @unique
+  name     String
+  regionFr String
+  regionEn String
+  position Int    @default(0)
+
+  listings Listing[]
+  users    User[]
+
+  @@index([position])
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  REJECTED
+  EXPIRED
+  SOLD
+  DELETED
+}
+
+enum ListingCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  FOR_PARTS
+  NOT_APPLICABLE
+}
+
+enum PriceUnit {
+  NONE
+  PER_MONTH
+  PER_DAY
+  PER_HOUR
+  PER_SESSION
+}
+
+model Listing {
+  id          String           @id @default(cuid())
+  slug        String
+  title       String           @db.VarChar(90)
+  description String           @db.VarChar(4000)
+  /// Entier de francs CFA : le FCFA n'a pas de sous-unité.
+  price       Int
+  priceUnit   PriceUnit        @default(NONE)
+  condition   ListingCondition @default(GOOD)
+
+  status ListingStatus @default(DRAFT)
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  cityId        String
+  city          City    @relation(fields: [cityId], references: [id])
+  neighbourhood String? @db.VarChar(60)
+
+  /// Recopié depuis le vendeur au moment de la publication, pour que le tri
+  /// « les PRO d'abord à pertinence égale » n'impose pas de jointure.
+  sellerIsPro Boolean @default(false)
+
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  soldAt      DateTime?
+  renewedAt   DateTime?
+
+  rejectionReason String?
+  rejectionNote   String?  @db.VarChar(500)
+  moderatedAt     DateTime?
+  moderatedById   String?
+
+  viewCount    Int @default(0)
+  favoriteCount Int @default(0)
+  contactCount Int @default(0)
+
+  /// Colonne générée (tsvector french + unaccent), créée par migration SQL.
+  searchVector Unsupported("tsvector")?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  images          ListingImage[]
+  favorites       Favorite[]
+  views           ListingView[]
+  phoneReveals    PhoneReveal[]
+  conversations   Conversation[]
+  moderationFlags ModerationFlag[]
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([status, categoryId, publishedAt(sort: Desc)])
+  @@index([status, cityId, publishedAt(sort: Desc)])
+  @@index([status, price])
+  @@index([sellerId, status])
+  @@index([expiresAt])
+  @@index([sellerIsPro, publishedAt(sort: Desc)])
+}
+
+model ListingImage {
+  id String @id @default(cuid())
+
+  listingId String?
+  listing   Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  /// Identifiant Cloudinary ; l'URL est reconstruite, jamais stockée en dur.
+  publicId String @unique
+  width    Int
+  height   Int
+  bytes    Int
+  format   String
+  position Int    @default(0)
+
+  /// Téléversée mais pas encore rattachée à une annonce : purgée par tâche planifiée.
+  uploadedById String
+  createdAt    DateTime @default(now())
+
+  @@index([listingId, position])
+  @@index([uploadedById, listingId])
+}
+
+model Favorite {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+  @@index([listingId])
+}
+
+/// Vue dédoublonnée par session sur 24 h. Aucune IP complète n'est conservée.
+model ListingView {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  /// Empreinte non réversible (session + jour), sans donnée identifiante.
+  visitorHash String
+  viewedAt    DateTime @default(now())
+
+  @@unique([listingId, visitorHash])
+  @@index([listingId, viewedAt])
+}
+
+/// Trace d'un affichage de numéro de téléphone : exigé par la promesse faite
+/// aux vendeurs, et support de la limitation de fréquence.
+model PhoneReveal {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  viewerId String?
+  viewer   User?   @relation(fields: [viewerId], references: [id], onDelete: SetNull)
+
+  ipPrefix   String?  @db.VarChar(45)
+  revealedAt DateTime @default(now())
+
+  @@index([listingId, revealedAt])
+  @@index([viewerId, revealedAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Messagerie chiffrée
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Une conversation naît toujours d'une annonce : pas de démarchage à froid.
+model Conversation {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  buyerId String
+  buyer   User   @relation("ConversationBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+
+  sellerId String
+  seller   User   @relation("ConversationSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  lastMessageAt    DateTime?
+  buyerReadAt      DateTime?
+  sellerReadAt     DateTime?
+  buyerArchivedAt  DateTime?
+  sellerArchivedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  messages Message[]
+  reports  Report[]
+
+  @@unique([listingId, buyerId])
+  @@index([buyerId, lastMessageAt(sort: Desc)])
+  @@index([sellerId, lastMessageAt(sort: Desc)])
+}
+
+/// AUCUN champ de texte en clair ici, et c'est délibéré : le serveur transporte
+/// des octets chiffrés qu'il ne peut pas ouvrir. Le test
+/// `tests/unit/message-schema.test.ts` échoue si un champ clair apparaît.
+model Message {
+  id String @id @default(cuid())
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId String
+  sender   User   @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  /// Chiffré pour le destinataire (nacl.box : X25519 + XSalsa20-Poly1305).
+  ciphertext String
+  nonce      String @db.VarChar(64)
+
+  /// Copie chiffrée pour l'expéditeur, sans laquelle il ne pourrait pas relire
+  /// ses propres messages après restauration sur un autre appareil.
+  senderCiphertext String
+  senderNonce      String @db.VarChar(64)
+
+  /// Clés publiques utilisées, pour détecter un changement de clé a posteriori.
+  recipientKeyId String
+  senderKeyId    String
+
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([senderId, createdAt])
+}
+
+model Block {
+  id String @id @default(cuid())
+
+  authorId String
+  author   User   @relation("BlockAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  targetId String
+  target   User   @relation("BlockTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([authorId, targetId])
+  @@index([targetId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Signalements, modération, audit
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum ReportTarget {
+  LISTING
+  USER
+  CONVERSATION
+}
+
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id String @id @default(cuid())
+
+  target   ReportTarget
+  targetId String
+
+  authorId String?
+  author   User?   @relation("ReportAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  reportedUserId String?
+  reportedUser   User?   @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  reason  String
+  comment String? @db.VarChar(1000)
+  status  ReportStatus @default(OPEN)
+
+  /// Le signalement d'une conversation n'est possible que si l'utilisateur a
+  /// explicitement accepté de déchiffrer et transmettre les messages concernés.
+  disclosureConsentAt DateTime?
+
+  handledById String?
+  handledAt   DateTime?
+  handlerNote String?   @db.VarChar(1000)
+
+  createdAt DateTime @default(now())
+
+  disclosedMessages DisclosedMessage[]
+
+  @@index([status, createdAt])
+  @@index([target, targetId])
+}
+
+/// Messages déchiffrés côté utilisateur puis transmis volontairement à la
+/// modération. C'est le seul endroit du système où du texte de conversation
+/// existe en clair, et il n'y arrive que par un acte délibéré de l'utilisateur.
+model DisclosedMessage {
+  id String @id @default(cuid())
+
+  reportId String
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  originalMessageId String
+  sentAt            DateTime
+  fromReporter      Boolean
+  plaintext         String   @db.VarChar(16000)
+
+  createdAt DateTime @default(now())
+
+  @@index([reportId])
+}
+
+/// Repérage automatique à la soumission. Il signale, il ne décide pas :
+/// l'annonce reste PENDING et remonte en tête de file pour un humain.
+model ModerationFlag {
+  id String @id @default(cuid())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  rule       String
+  matchedOn  String  @db.VarChar(200)
+  severity   Int     @default(1)
+
+  createdAt DateTime @default(now())
+
+  @@index([listingId])
+  @@index([severity, createdAt])
+}
+
+/// Journal d'audit immuable : aucune route ne l'expose en écriture ni en
+/// suppression. Une règle de base (migration SQL) interdit UPDATE et DELETE.
+model AuditLog {
+  id String @id @default(cuid())
+
+  actorId String?
+  actor   User?   @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  action     String
+  targetType String
+  targetId   String
+  reason     String? @db.VarChar(1000)
+  metadata   Json?
+  ipPrefix   String? @db.VarChar(45)
+
+  createdAt DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+  @@index([action, createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Abonnement Pro et paiements
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Le prix vit en base, jamais en dur dans le code.
+model Plan {
+  id       String  @id @default(cuid())
+  code     String  @unique
+  nameFr   String
+  nameEn   String
+  /// Montant TTC en francs CFA.
+  priceXaf Int
+  /// Taux de TVA en points de base (1925 = 19,25 %). 0 tant que
+  /// l'assujettissement de l'éditeur n'est pas établi.
+  vatRateBp Int    @default(0)
+  periodDays Int   @default(30)
+  isActive  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PAYMENT_FAILED
+}
+
+model Subscription {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status SubscriptionStatus @default(PENDING)
+
+  startedAt DateTime?
+  /// Fin de la période payée. La résiliation prend effet à cette date.
+  endsAt    DateTime?
+  /// Résiliation demandée : l'abonnement court jusqu'à `endsAt` puis s'arrête.
+  cancelledAt      DateTime?
+  cancellationReason String? @db.VarChar(500)
+  /// Relance envoyée 3 jours avant l'échéance ; évite les doublons.
+  renewalNoticeSentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments Payment[]
+
+  @@index([userId, status])
+  @@index([status, endsAt])
+}
+
+enum PaymentProvider {
+  MOCK
+  MAVIANCE
+  STRIPE
+}
+
+enum PaymentMethod {
+  MTN_MOMO
+  ORANGE_MONEY
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  provider PaymentProvider
+  method   PaymentMethod
+  status   PaymentStatus   @default(PENDING)
+
+  amountXaf Int
+  vatXaf    Int @default(0)
+
+  /// Référence interne montrée à l'utilisateur.
+  reference String @unique
+  /// Référence du fournisseur. Unique : elle porte l'idempotence des webhooks.
+  providerRef String? @unique
+  failureCode String?
+
+  /// Empreinte de la charge utile du webhook déjà traité, pour rejeter un rejeu.
+  webhookEventId String? @unique
+
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  receipt Receipt?
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+/// Numérotation continue et sans trou, exigée pour une pièce comptable.
+model Receipt {
+  id String @id @default(cuid())
+
+  paymentId String  @unique
+  payment   Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  /// Séquence annuelle : INB-2026-000001
+  number     String @unique
+  year       Int
+  sequence   Int
+
+  /// Identité de l'éditeur figée au moment de l'émission : un reçu ne change
+  /// pas rétroactivement si l'éditeur change de forme juridique.
+  issuerSnapshot Json
+
+  issuedAt DateTime @default(now())
+
+  @@unique([year, sequence])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Documents légaux, acceptations, consentement
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum LegalDocumentType {
+  MENTIONS_LEGALES
+  CGU
+  CGV
+  CONFIDENTIALITE
+  COOKIES
+  REGLES_PUBLICATION
+  CONSEILS_SECURITE
+}
+
+model LegalDocument {
+  id String @id @default(cuid())
+
+  type    LegalDocumentType
+  locale  String
+  version String
+  title   String
+  /// Corps du document en Markdown. Les variables d'identité de l'éditeur sont
+  /// injectées au rendu, pour qu'une immatriculation ne demande qu'un nouvel
+  /// enregistrement et non une réécriture.
+  body    String
+
+  effectiveAt DateTime
+  publishedAt DateTime?
+  /// Une nouvelle version d'un document à acceptation oblige l'utilisateur à
+  /// réaccepter à sa prochaine connexion.
+  requiresAcceptance Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  acceptances LegalAcceptance[]
+
+  @@unique([type, locale, version])
+  @@index([type, locale, effectiveAt(sort: Desc)])
+}
+
+model LegalAcceptance {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  documentId String
+  document   LegalDocument @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  type    LegalDocumentType
+  version String
+
+  /// Adresse IP tronquée (/24 ou /48) : preuve de l'acte sans conservation
+  /// d'une donnée directement identifiante.
+  ipPrefix  String?  @db.VarChar(45)
+  userAgent String?  @db.VarChar(255)
+  acceptedAt DateTime @default(now())
+
+  @@unique([userId, documentId])
+  @@index([userId, type])
+}
+
+/// Trace de consentement aux traceurs. Avec Umami auto-hébergé (sans cookie),
+/// seuls des cookies strictement nécessaires sont posés et aucun consentement
+/// n'est requis ; ce modèle existe pour rester conforme si un traceur à cookie
+/// est ajouté un jour.
+model ConsentRecord {
+  id String @id @default(cuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  /// Identifiant du visiteur non connecté, stocké dans un cookie nécessaire.
+  visitorId String?
+
+  analytics     Boolean @default(false)
+  policyVersion String
+
+  ipPrefix  String?  @db.VarChar(45)
+  createdAt DateTime @default(now())
+  /// Le consentement est redemandé au-delà de six mois.
+  expiresAt DateTime
+
+  @@index([userId, createdAt])
+  @@index([visitorId, createdAt])
+  @@index([expiresAt])
+}

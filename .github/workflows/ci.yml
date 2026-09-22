@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10.33.0'
+
+jobs:
+  qualite:
+    name: Lint, types et tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: inbox
+          POSTGRES_PASSWORD: inbox
+          POSTGRES_DB: inbox
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U inbox -d inbox"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://inbox:inbox@localhost:5432/inbox?schema=public
+      # Valeurs de test : l'API refuse de démarrer sans configuration complète.
+      NODE_ENV: test
+      APP_URL: http://localhost:3000
+      API_URL: http://localhost:3001
+      JWT_SECRET: ci-jwt-secret-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      REFRESH_SECRET: ci-refresh-secret-bbbbbbbbbbbbbbbbbbbbbbbbbb
+      CSRF_SECRET: ci-csrf-secret-cccccccccccccccccccccccccccccc
+      PUBLISHER_NAME: Flavien Noponkoue
+      PUBLISHER_ADDRESS: 2 avenue Robert Schuman, 51100 Reims, France
+      PUBLISHER_EMAIL: contact@inbox.cm
+      PUBLICATION_DIRECTOR: Flavien Noponkoue
+      PRIVACY_CONTACT_EMAIL: donnees@inbox.cm
+      ABUSE_CONTACT_EMAIL: abus@inbox.cm
+      HOST_NAME: OVH SAS
+      HOST_ADDRESS: 2 rue Kellermann, 59100 Roubaix, France
+      HOST_COUNTRY: France
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Construire les schémas partagés
+        run: pnpm --filter @inbox/shared build
+
+      - name: Générer le client Prisma
+        run: pnpm --filter @inbox/api exec prisma generate
+
+      - name: Appliquer les migrations
+        run: pnpm --filter @inbox/api exec prisma migrate deploy
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Types
+        run: pnpm typecheck
+
+      - name: Tests unitaires et API
+        run: pnpm test
+
+      - name: Charger le jeu de démonstration
+        run: pnpm db:seed
+
+      - name: Build
+        run: pnpm build

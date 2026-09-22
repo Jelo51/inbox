@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+  }
+
+  /* Focus toujours visible : la navigation au clavier doit rester praticable. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-orange ring-offset-2 ring-offset-canvas;
+  }
+
+  /* Les champs de saisie ne descendent jamais sous 16 px, sans quoi iOS zoome
+     à la mise au point et casse la mise en page. */
+  input,
+  select,
+  textarea {
+    @apply text-input;
+  }
+
+  /* Chiffres, prix et références en chasse fixe, alignés en colonnes. */
+  .tabular {
+    @apply font-mono tabular-nums;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-4 md:px-6;
+  }
+
+  .btn {
+    @apply inline-flex min-h-touch items-center justify-center gap-2 rounded-pill px-4
+           text-sm font-semibold transition-colors disabled:cursor-not-allowed
+           disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-orange text-white hover:bg-orange-hover;
+  }
+
+  .btn-secondary {
+    @apply btn border border-line bg-card text-ink hover:bg-canvas;
+  }
+
+  .btn-ghost {
+    @apply btn text-muted hover:bg-orange-soft hover:text-orange-hover;
+  }
+
+  .field {
+    @apply min-h-touch w-full rounded-card border border-line bg-card px-3
+           text-ink placeholder:text-grey focus:border-orange;
+  }
+
+  .card-surface {
+    @apply rounded-card border border-line bg-card shadow-card;
+  }
+
+  /* Réservé au contenu lisible uniquement par les lecteurs d'écran. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    @apply sr-only;
+  }
+}
+
+/* Respect du réglage système : aucune animation imposée à qui n'en veut pas. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
