@@ -193,6 +193,33 @@ fournisseur réel ne demandera que de remplir les variables d'environnement.
 marchand. Si c'est confirmé, il faudra un agrégateur couvrant le Cameroun
 (Flutterwave, Paystack, Notch Pay, CinetPay) à la place de Stripe.
 
+### Abonnement Pro et paiements
+
+- **Le statut Pro n'est activé que par le serveur.** L'initiation laisse le
+  paiement et l'abonnement en `PENDING` ; seule une notification vérifiée les
+  fait basculer. Une redirection de navigateur ne prouve rien.
+- **L'idempotence est portée par la base**, pas par une lecture préalable :
+  `Payment.webhookEventId` est unique, donc un rejeu concurrent échoue à
+  l'insertion. Les fournisseurs réémettent tant qu'ils n'ont pas reçu un 200 —
+  le rejeu est le cas courant, pas l'exception.
+- **Les webhooks sont lus bruts** (`express.raw` monté avant `express.json`) :
+  recalculer une signature sur un JSON re-sérialisé échouerait, l'ordre des
+  clés et les espaces n'étant pas préservés.
+- **On répond 200 même à une signature invalide** : détailler l'échec
+  renseignerait un attaquant et déclencherait des réémissions sans fin.
+- **La numérotation des reçus est continue par année.** Une séquence PostgreSQL
+  laisserait un trou à chaque transaction annulée, d'où le calcul sous verrou
+  d'avis (`inbox_next_receipt_sequence`).
+- **L'identité de l'éditeur est figée dans le reçu** (`issuerSnapshot`) : un
+  reçu ne change pas rétroactivement le jour de l'immatriculation.
+- **La résiliation prend effet en fin de période payée.** Couper
+  immédiatement reviendrait à reprendre un service déjà facturé.
+- **Le rôle PRO est porté par `User.role`**, pas déduit d'un calcul de date à
+  chaque contrôle d'accès : une tâche planifiée le retire à l'échéance. Un
+  modérateur ou un administrateur qui s'abonne garde son rôle.
+- **Aucun prélèvement automatique.** Le renouvellement est à l'initiative de
+  l'utilisateur, avec une relance par e-mail trois jours avant l'échéance.
+
 ### Cadre juridique
 
 **Le RGPD s'applique**, confirmé en phase 0 : l'éditeur est établi à Reims, en
@@ -239,6 +266,21 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
   `no-undef` est désactivée sur `apps/web`, TypeScript fait le travail.
 - **Le seed refuse de tourner si des annonces existent déjà**, et refuse
   catégoriquement `NODE_ENV=production`.
+- **Supprimer un `User` ne peut pas cascader jusqu'au `Payment`** : `Receipt`
+  est en `Restrict` sur son paiement, délibérément — une pièce comptable ne
+  disparaît pas parce qu'on supprime un compte. La suppression de compte
+  (phase 7) devra donc **anonymiser** et non supprimer.
+- **`Report.authorId` est en `SetNull`** : supprimer un compte laisse ses
+  signalements derrière lui, et avec eux les messages transmis en clair dans
+  `DisclosedMessage`. La purge de compte devra les effacer explicitement — à
+  traiter en phase 7.
+- **Les polices PDF standard utilisent l'encodage WinAnsi**, qui ne connaît ni
+  l'apostrophe typographique ni les tirets longs. `toWinAnsi()` les ramène à
+  leur équivalent ASCII ; sans cela, `pdf-lib` lève « WinAnsi cannot encode »
+  et un mot de trop dans un libellé casserait la facturation.
+- **Prisma transmet les entiers JavaScript en `bigint`** dans `$queryRaw` :
+  une fonction SQL déclarée sur `integer` reste introuvable sans transtypage
+  explicite (`${year}::int`).
 - **Aucun emoji** dans l'interface, les e-mails ou les documents légaux. Les
   icônes viennent de `lucide-vue-next`.
 
@@ -267,7 +309,7 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
 | 2. Auth et comptes     | fait    |
 | 3. Annonces            | fait    |
 | 4. Messagerie chiffrée | fait    |
-| 5. Pro et paiements    | à faire |
+| 5. Pro et paiements    | fait    |
 | 6. Modération et admin | à faire |
 | 7. Légal et conformité | à faire |
 | 8. Finitions           | à faire |

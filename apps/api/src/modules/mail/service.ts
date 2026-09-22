@@ -6,6 +6,9 @@ import {
   emailChangeTemplate,
   passwordChangedTemplate,
   passwordResetTemplate,
+  paymentConfirmedTemplate,
+  paymentFailedTemplate,
+  renewalNoticeTemplate,
   verifyEmailTemplate,
   type TemplateContext,
 } from './templates.js';
@@ -72,5 +75,23 @@ export class MailService {
 
   async sendPasswordChanged(recipient: MailRecipient): Promise<void> {
     await this.deliver(recipient, passwordChangedTemplate(this.context(recipient)));
+  }
+
+  async sendPaymentConfirmed(
+    recipient: MailRecipient,
+    details: { planName: string; amountLabel: string; receiptNumber: string; endsAt: string },
+  ): Promise<void> {
+    await this.deliver(recipient, paymentConfirmedTemplate(this.context(recipient), details));
+  }
+
+  async sendPaymentFailed(recipient: MailRecipient, amountLabel: string): Promise<void> {
+    await this.deliver(recipient, paymentFailedTemplate(this.context(recipient), { amountLabel }));
+  }
+
+  async sendRenewalNotice(
+    recipient: MailRecipient,
+    details: { amountLabel: string; endsAt: string; cancelled: boolean },
+  ): Promise<void> {
+    await this.deliver(recipient, renewalNoticeTemplate(this.context(recipient), details));
   }
 }

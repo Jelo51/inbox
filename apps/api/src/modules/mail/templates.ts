@@ -188,3 +188,94 @@ export function passwordChangedTemplate(ctx: TemplateContext): RenderedEmail {
   };
   return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
 }
+
+export function paymentConfirmedTemplate(
+  ctx: TemplateContext,
+  details: { planName: string; amountLabel: string; receiptNumber: string; endsAt: string },
+): RenderedEmail {
+  const fr: Layout = {
+    title: 'Votre abonnement Inbox Pro est actif',
+    intro: `Votre paiement a bien été confirmé. Votre abonnement ${details.planName} est actif jusqu'au ${details.endsAt}.`,
+    body: [
+      `Montant réglé : ${details.amountLabel}`,
+      `Numéro de reçu : ${details.receiptNumber}`,
+      'Votre reçu est téléchargeable depuis votre espace abonnement.',
+    ],
+    action: { label: 'Voir mon abonnement', url: `${ctx.appUrl}/compte/abonnement` },
+  };
+  const en: Layout = {
+    title: 'Your Inbox Pro subscription is active',
+    intro: `Your payment has been confirmed. Your ${details.planName} subscription is active until ${details.endsAt}.`,
+    body: [
+      `Amount paid: ${details.amountLabel}`,
+      `Receipt number: ${details.receiptNumber}`,
+      'Your receipt can be downloaded from your subscription area.',
+    ],
+    action: { label: 'View my subscription', url: `${ctx.appUrl}/compte/abonnement` },
+  };
+  return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
+}
+
+export function paymentFailedTemplate(
+  ctx: TemplateContext,
+  details: { amountLabel: string },
+): RenderedEmail {
+  const fr: Layout = {
+    title: 'Votre paiement n’a pas abouti',
+    intro: `Le paiement de ${details.amountLabel} pour votre abonnement Inbox Pro n'a pas pu être confirmé.`,
+    body: ['Aucun montant n’a été prélevé. Vous pouvez réessayer quand vous le souhaitez.'],
+    action: { label: 'Réessayer', url: `${ctx.appUrl}/pro` },
+  };
+  const en: Layout = {
+    title: 'Your payment did not go through',
+    intro: `The ${details.amountLabel} payment for your Inbox Pro subscription could not be confirmed.`,
+    body: ['Nothing has been charged. You can try again whenever you like.'],
+    action: { label: 'Try again', url: `${ctx.appUrl}/pro` },
+  };
+  return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
+}
+
+export function renewalNoticeTemplate(
+  ctx: TemplateContext,
+  details: { amountLabel: string; endsAt: string; cancelled: boolean },
+): RenderedEmail {
+  const fr: Layout = details.cancelled
+    ? {
+        title: 'Votre abonnement Pro se termine bientôt',
+        intro: `Votre abonnement Inbox Pro prend fin le ${details.endsAt}, comme vous l'avez demandé.`,
+        body: [
+          'À cette date, votre compte redeviendra un compte particulier : dix annonces par mois, sans badge vérifié.',
+        ],
+        action: { label: 'Reprendre un abonnement', url: `${ctx.appUrl}/pro` },
+      }
+    : {
+        title: 'Votre abonnement Pro arrive à échéance',
+        intro: `Votre abonnement Inbox Pro arrive à échéance le ${details.endsAt}.`,
+        body: [
+          `Pour continuer sans interruption, renouvelez-le depuis votre espace abonnement (${details.amountLabel}).`,
+          'Aucun prélèvement automatique n’est effectué : le renouvellement est à votre initiative.',
+        ],
+        action: { label: 'Renouveler', url: `${ctx.appUrl}/compte/abonnement` },
+      };
+
+  const en: Layout = details.cancelled
+    ? {
+        title: 'Your Pro subscription ends soon',
+        intro: `Your Inbox Pro subscription ends on ${details.endsAt}, as you requested.`,
+        body: [
+          'On that date your account returns to a personal account: ten ads a month, without the verified badge.',
+        ],
+        action: { label: 'Subscribe again', url: `${ctx.appUrl}/pro` },
+      }
+    : {
+        title: 'Your Pro subscription is about to expire',
+        intro: `Your Inbox Pro subscription expires on ${details.endsAt}.`,
+        body: [
+          `To continue without interruption, renew it from your subscription area (${details.amountLabel}).`,
+          'Nothing is charged automatically: renewing is up to you.',
+        ],
+        action: { label: 'Renew', url: `${ctx.appUrl}/compte/abonnement` },
+      };
+
+  return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
+}

@@ -273,7 +273,18 @@ describe('le serveur ne peut pas lire les messages', () => {
       if (Number(rows[0]?.total ?? 0) > 0) trouvailles.push(`${table_name}.${column_name}`);
     }
 
-    expect(trouvailles).toEqual([]);
+    // `DisclosedMessage.plaintext` est la seule colonne du système autorisée à
+    // contenir du clair, et seulement quand l'utilisateur a explicitement
+    // accepté de transmettre la conversation à la modération. Si elle apparaît
+    // ici, on vérifie que ce consentement existe bel et bien.
+    for (const trouvaille of trouvailles) {
+      expect(trouvaille).toBe('DisclosedMessage.plaintext');
+    }
+
+    const sansConsentement = await prisma.disclosedMessage.count({
+      where: { report: { disclosureConsentAt: null } },
+    });
+    expect(sansConsentement).toBe(0);
   });
 
   it('la réponse de l’API ne contient jamais le clair', async () => {

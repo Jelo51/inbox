@@ -13,6 +13,9 @@ import { apiV1Router } from './routes.js';
 import { MailService } from './modules/mail/service.js';
 import { createImageStorage, type ImageStorage } from './modules/images/storage.js';
 import { createNoopHub, type RealtimeHub } from './modules/messaging/realtime.js';
+import { createGateways } from './modules/billing/providers/index.js';
+import type { BillingDeps } from './modules/billing/service.js';
+import { now } from './lib/clock.js';
 
 export interface AppDependencies {
   env: Env;
@@ -22,9 +25,18 @@ export interface AppDependencies {
   mail?: MailService;
   storage?: ImageStorage;
   hub?: RealtimeHub;
+  billing?: BillingDeps;
 }
 
-export function createApp({ env, prisma, logger, mail, storage, hub }: AppDependencies): Express {
+export function createApp({
+  env,
+  prisma,
+  logger,
+  mail,
+  storage,
+  hub,
+  billing,
+}: AppDependencies): Express {
   const app = express();
 
   // Derrière Nginx : sans cela, req.ip vaut l'adresse du reverse proxy et la
@@ -46,6 +58,12 @@ export function createApp({ env, prisma, logger, mail, storage, hub }: AppDepend
   );
 
   app.use(...securityMiddleware(env));
+
+  // Les webhooks doivent être lus bruts : recalculer une signature sur un JSON
+  // re-sérialisé échouerait, l'ordre des clés et les espaces n'étant pas
+  // préservés. Ce parseur doit donc précéder express.json().
+  app.use('/api/v1/billing/webhooks', express.raw({ type: '*/*', limit: '256kb' }));
+
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false, limit: '256kb' }));
   app.use(cookieParser());
@@ -67,9 +85,20 @@ export function createApp({ env, prisma, logger, mail, storage, hub }: AppDepend
   }
 
   app.use('/api/v1', createRateLimiter('global', RATE_LIMITS.global));
+  const mailService = mail ?? new MailService(env, logger);
+
+  const billingDeps: BillingDeps = billing ?? {
+    prisma,
+    gateways: createGateways(env, logger),
+    mail: mailService,
+    logger,
+    appUrl: env.APP_URL,
+    now,
+  };
+
   app.use(
     '/api/v1',
-    apiV1Router(prisma, mail ?? new MailService(env, logger), imageStorage, hub ?? createNoopHub()),
+    apiV1Router(prisma, mailService, imageStorage, hub ?? createNoopHub(), billingDeps),
   );
 
   app.use(notFoundHandler);

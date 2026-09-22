@@ -6,6 +6,7 @@ import { startScheduler } from './jobs/scheduler.js';
 import { createRealtimeHub } from './modules/messaging/realtime.js';
 // L'import enregistre les tâches planifiées auprès de l'ordonnanceur.
 import './jobs/listings.js';
+import './jobs/billing.js';
 
 async function main(): Promise<void> {
   // parseEnv lève une erreur explicite si la configuration est incomplète :

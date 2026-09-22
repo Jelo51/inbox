@@ -338,5 +338,84 @@
         "OTHER": "Autre"
       }
     }
+  },
+  "pro": {
+    "title": "Passez en Pro",
+    "subtitle": "Pour celles et ceux qui vendent régulièrement.",
+    "perMonth": "par mois",
+    "free": {
+      "name": "Gratuit",
+      "for": "Pour vendre de temps en temps"
+    },
+    "plan": {
+      "name": "Inbox Pro",
+      "for": "Pour vendre régulièrement",
+      "badge": "LE PLUS CHOISI"
+    },
+    "features": {
+      "unlimited": "Annonces illimitées",
+      "limited": "10 annonces par mois",
+      "badge": "Badge vérifié sur la boutique",
+      "ranking": "Remontée dans les résultats",
+      "stats": "Statistiques de vues et de contacts",
+      "support": "Réponse prioritaire au support",
+      "encrypted": "Messagerie chiffrée",
+      "moderated": "Annonces modérées"
+    },
+    "subscribe": "S'abonner",
+    "currentPlan": "Votre offre actuelle",
+    "demoNotice": "Espace de paiement de démonstration : aucun débit réel n'est effectué. Les comptes Mobile Money et carte ne sont pas encore ouverts.",
+    "noAutoRenew": "Aucun prélèvement automatique. Le renouvellement est à votre initiative.",
+    "method": "Moyen de paiement",
+    "methods": {
+      "MTN_MOMO": "MTN Mobile Money",
+      "ORANGE_MONEY": "Orange Money",
+      "CARD": "Carte bancaire"
+    },
+    "payerPhone": "Numéro Mobile Money",
+    "payerPhoneHint": "Le numéro depuis lequel vous confirmerez le paiement.",
+    "pay": "Payer {amount}",
+    "refundPolicy": "Abonnement non remboursable. La résiliation prend effet à la fin de la période payée."
+  },
+  "subscription": {
+    "title": "Abonnement et reçus",
+    "none": "Vous n'avez pas d'abonnement en cours.",
+    "discover": "Découvrir l'offre Pro",
+    "status": {
+      "PENDING": "En attente de paiement",
+      "ACTIVE": "Actif",
+      "CANCELLED": "Résilié",
+      "EXPIRED": "Expiré",
+      "PAYMENT_FAILED": "Paiement échoué"
+    },
+    "activeUntil": "Actif jusqu'au {date}",
+    "endsOn": "Se termine le {date}",
+    "cancelled": "Résilié le {date}. Le service reste actif jusqu'à l'échéance.",
+    "cancel": "Résilier mon abonnement",
+    "cancelConfirm": "Résilier votre abonnement ? Il restera actif jusqu'à la fin de la période déjà payée.",
+    "renew": "Renouveler",
+    "payments": "Historique des paiements",
+    "noPayments": "Aucun paiement.",
+    "receipt": "Reçu",
+    "download": "Télécharger",
+    "paymentStatus": {
+      "PENDING": "En attente",
+      "SUCCEEDED": "Payé",
+      "FAILED": "Échoué",
+      "REFUNDED": "Remboursé"
+    }
+  },
+  "demoPayment": {
+    "title": "Espace de paiement de démonstration",
+    "notice": "Cette page remplace la page de paiement du fournisseur, tant qu'aucun compte Maviance ni Stripe n'est ouvert. Aucun montant n'est débité.",
+    "howItWorks": "La confirmation passe par le serveur, exactement comme une notification réelle : c'est lui qui active l'abonnement, jamais le navigateur.",
+    "reference": "Référence",
+    "amount": "Montant",
+    "confirm": "Confirmer le paiement",
+    "decline": "Simuler un échec",
+    "confirming": "Confirmation",
+    "success": "Paiement confirmé. Votre abonnement Pro est actif.",
+    "failed": "Paiement refusé. Aucun montant n'a été débité.",
+    "back": "Retour à mon abonnement"
   }
 }

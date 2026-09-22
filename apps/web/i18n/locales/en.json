@@ -338,5 +338,84 @@
         "OTHER": "Other"
       }
     }
+  },
+  "pro": {
+    "title": "Go Pro",
+    "subtitle": "For people who sell regularly.",
+    "perMonth": "per month",
+    "free": {
+      "name": "Free",
+      "for": "To sell now and then"
+    },
+    "plan": {
+      "name": "Inbox Pro",
+      "for": "To sell regularly",
+      "badge": "MOST CHOSEN"
+    },
+    "features": {
+      "unlimited": "Unlimited ads",
+      "limited": "10 ads a month",
+      "badge": "Verified badge on your shop",
+      "ranking": "Higher in search results",
+      "stats": "View and contact statistics",
+      "support": "Priority support",
+      "encrypted": "Encrypted messaging",
+      "moderated": "Moderated ads"
+    },
+    "subscribe": "Subscribe",
+    "currentPlan": "Your current plan",
+    "demoNotice": "Demonstration payment area: nothing is actually charged. The Mobile Money and card accounts are not open yet.",
+    "noAutoRenew": "No automatic charge. Renewing is up to you.",
+    "method": "Payment method",
+    "methods": {
+      "MTN_MOMO": "MTN Mobile Money",
+      "ORANGE_MONEY": "Orange Money",
+      "CARD": "Bank card"
+    },
+    "payerPhone": "Mobile Money number",
+    "payerPhoneHint": "The number you will confirm the payment from.",
+    "pay": "Pay {amount}",
+    "refundPolicy": "The subscription is non-refundable. Cancellation takes effect at the end of the paid period."
+  },
+  "subscription": {
+    "title": "Subscription and receipts",
+    "none": "You have no active subscription.",
+    "discover": "Discover Inbox Pro",
+    "status": {
+      "PENDING": "Awaiting payment",
+      "ACTIVE": "Active",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired",
+      "PAYMENT_FAILED": "Payment failed"
+    },
+    "activeUntil": "Active until {date}",
+    "endsOn": "Ends on {date}",
+    "cancelled": "Cancelled on {date}. The service stays active until the end date.",
+    "cancel": "Cancel my subscription",
+    "cancelConfirm": "Cancel your subscription? It stays active until the end of the period you already paid for.",
+    "renew": "Renew",
+    "payments": "Payment history",
+    "noPayments": "No payments.",
+    "receipt": "Receipt",
+    "download": "Download",
+    "paymentStatus": {
+      "PENDING": "Pending",
+      "SUCCEEDED": "Paid",
+      "FAILED": "Failed",
+      "REFUNDED": "Refunded"
+    }
+  },
+  "demoPayment": {
+    "title": "Demonstration payment area",
+    "notice": "This page replaces the provider's payment page while no Maviance or Stripe account is open. Nothing is charged.",
+    "howItWorks": "Confirmation goes through the server, exactly like a real notification: the server activates the subscription, never the browser.",
+    "reference": "Reference",
+    "amount": "Amount",
+    "confirm": "Confirm payment",
+    "decline": "Simulate a failure",
+    "confirming": "Confirming",
+    "success": "Payment confirmed. Your Pro subscription is active.",
+    "failed": "Payment declined. Nothing was charged.",
+    "back": "Back to my subscription"
   }
 }
