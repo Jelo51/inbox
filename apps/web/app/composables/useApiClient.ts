@@ -34,8 +34,18 @@ export interface RequestOptions {
   signal?: AbortSignal;
 }
 
+/**
+ * Accepte une base absolue (`https://api.exemple/api/v1`) comme une base
+ * relative (`/api/v1`). La base relative est le cas recommandé en production :
+ * elle garde l'API sur l'origine du site, donc les cookies de session
+ * fonctionnent sans passer en `SameSite=None`.
+ */
 function buildUrl(base: string, path: string, query?: RequestOptions['query']): string {
-  const url = new URL(`${base}${path}`, base);
+  const origin = base.startsWith('http')
+    ? base
+    : `${import.meta.client ? window.location.origin : 'http://localhost'}${base}`;
+
+  const url = new URL(`${origin}${path}`);
   for (const [key, value] of Object.entries(query ?? {})) {
     if (value !== undefined) url.searchParams.set(key, String(value));
   }
@@ -49,7 +59,11 @@ function buildUrl(base: string, path: string, query?: RequestOptions['query']): 
  */
 export function useApiClient() {
   const config = useRuntimeConfig();
-  const base = config.public.apiBase;
+
+  // Pendant le rendu serveur, une base relative n'est pas résolvable : on
+  // utilise l'adresse interne de l'API quand elle est configurée.
+  const base =
+    import.meta.server && config.apiBaseServer ? config.apiBaseServer : config.public.apiBase;
 
   async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const headers: Record<string, string> = { Accept: 'application/json' };

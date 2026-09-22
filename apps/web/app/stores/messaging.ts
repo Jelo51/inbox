@@ -268,7 +268,12 @@ export const useMessagingStore = defineStore('messagerie', () => {
   function connectRealtime(): void {
     if (socket || !auth.accessToken) return;
 
-    socket = io(new URL(config.public.apiBase).origin, {
+    // Base relative : le temps réel vit sur la même origine que le site.
+    const origin = config.public.apiBase.startsWith('http')
+      ? new URL(config.public.apiBase).origin
+      : window.location.origin;
+
+    socket = io(origin, {
       path: '/api/v1/realtime',
       auth: { token: auth.accessToken },
       transports: ['websocket', 'polling'],

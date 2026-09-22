@@ -32,6 +32,24 @@ le stockage y fonctionnent.
 
 ---
 
+## 0. Un piège à connaître avant de commencer
+
+Il faut **deux projets Vercel** (l'API et le front), mais le navigateur ne doit
+**jamais** appeler l'API sur son propre domaine. Raison : `vercel.app` figure
+sur la Public Suffix List, donc `inbox-api.vercel.app` et
+`inbox-demo.vercel.app` sont deux **sites différents** au sens des navigateurs.
+Le cookie de session, posé en `SameSite=Lax`, ne serait alors pas transmis :
+la connexion tiendrait le temps d'une page, puis retomberait — exactement le
+genre de panne qui survient devant un jury.
+
+La solution est dans `apps/web/vercel.json` : un **renvoi côté serveur**.
+Le navigateur appelle `/api/v1/...` sur le domaine du site, Vercel relaie vers
+l'API. Une seule origine, cookies intacts, et aucun CORS à régler.
+
+Vous n'avez qu'une ligne à modifier — l'URL de destination, à l'étape 4.
+
+---
+
 ## 1. Base de données
 
 Vercel n'héberge pas PostgreSQL. Créez une base sur **Neon**
@@ -85,7 +103,7 @@ Variables d'environnement à définir (Settings → Environment Variables) :
 NODE_ENV=production
 DATABASE_URL=postgresql://…?sslmode=require
 APP_URL=https://inbox-demo.vercel.app          # l'URL du front, voir étape 4
-API_URL=https://inbox-api.vercel.app
+API_URL=https://inbox-demo.vercel.app          # le front relaie /api/v1, d'où la même URL
 CORS_ORIGINS=https://inbox-demo.vercel.app
 
 JWT_SECRET=…        # openssl rand -base64 48
@@ -125,24 +143,50 @@ vercel link          # par exemple « inbox-demo »
 vercel --prod
 ```
 
-**Root Directory** : `apps/web`. Variables :
+**Root Directory** : `apps/web`.
+
+**Avant de déployer**, ouvrez `apps/web/vercel.json` et remplacez l'URL de
+destination du renvoi par celle du projet API créé à l'étape 3 :
+
+```json
+"destination": "https://inbox-api.vercel.app/api/v1/:path*"
+```
+
+Variables d'environnement :
 
 ```
-NUXT_PUBLIC_API_BASE=https://inbox-api.vercel.app/api/v1
+NUXT_PUBLIC_API_BASE=/api/v1
+NUXT_API_BASE_SERVER=https://inbox-api.vercel.app/api/v1
 NUXT_PUBLIC_SITE_URL=https://inbox-demo.vercel.app
 ```
 
-Puis retournez dans le projet de l'API pour que `APP_URL` et `CORS_ORIGINS`
-pointent bien vers l'URL définitive du front, et redéployez l'API.
+Les deux premières ne se contredisent pas : le **navigateur** appelle
+`/api/v1` sur l'origine du site (c'est ce qui préserve les cookies), tandis que
+le **rendu serveur** appelle directement l'API, une URL relative n'étant pas
+résolvable côté serveur.
+
+Puis retournez dans le projet de l'API pour que `APP_URL`, `API_URL` et
+`CORS_ORIGINS` pointent vers l'URL définitive du front, et redéployez l'API.
 
 ---
 
 ## 5. Vérifier avant le jour J
 
 ```bash
+# L'API, directement
 curl https://inbox-api.vercel.app/api/v1/health          # {"status":"ok"}
-curl -s "https://inbox-api.vercel.app/api/v1/listings?limit=1" | head -c 200
+
+# L'API à travers le renvoi du front — c'est ce chemin que le navigateur emprunte
+curl https://inbox-demo.vercel.app/api/v1/health         # {"status":"ok"}
+curl -s "https://inbox-demo.vercel.app/api/v1/listings?limit=1" | head -c 200
 ```
+
+Si la seconde commande échoue alors que la première fonctionne, le renvoi de
+`apps/web/vercel.json` n'a pas été mis à jour.
+
+**Le test qui compte** : connectez-vous avec un compte de démonstration,
+**rechargez la page**, et vérifiez que vous êtes toujours connecté. C'est ce
+que le renvoi rend possible.
 
 Puis, dans un navigateur, déroulez le parcours de `docs/demo-jury.md` **en
 entier**, sur mobile et sur ordinateur. Une démonstration répétée une fois à

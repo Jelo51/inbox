@@ -49,6 +49,13 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    /**
+     * Le rendu serveur ne peut pas appeler une URL relative : il lui faut une
+     * adresse absolue. Le navigateur, lui, a tout intérêt à rester sur une URL
+     * relative — c'est ce qui garde l'API sur la même origine que le site, et
+     * donc les cookies de session utilisables.
+     */
+    apiBaseServer: process.env.NUXT_API_BASE_SERVER ?? '',
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:3001/api/v1',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',

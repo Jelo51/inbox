@@ -2,5 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @inbox/shared build && pnpm --filter @inbox/web build",
   "outputDirectory": ".output/public",
-  "framework": "nuxtjs"
+  "framework": "nuxtjs",
+  "rewrites": [
+    {
+      "comment": "REMPLACER par l'URL du projet Vercel de l'API. Ce renvoi côté serveur garde l'API sur l'origine du site : sans lui, les cookies de session seraient inter-sites et la connexion ne tiendrait pas d'une page à l'autre (vercel.app est sur la Public Suffix List, donc deux sous-domaines y sont des sites distincts).",
+      "source": "/api/v1/:path*",
+      "destination": "https://REMPLACER-PAR-URL-API.vercel.app/api/v1/:path*"
+    }
+  ]
 }
