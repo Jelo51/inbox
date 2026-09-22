@@ -65,6 +65,8 @@ model User {
   city   City?   @relation(fields: [cityId], references: [id], onDelete: SetNull)
 
   lastLoginAt DateTime?
+  /// Avertissement d'inactivité envoyé : remis à zéro à la connexion suivante.
+  inactivityWarnedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   /// Anonymisation immédiate à la suppression du compte ; purge par tâche planifiée.

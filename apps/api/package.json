@@ -15,7 +15,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force",
     "db:seed": "tsx --env-file-if-exists=../../.env prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:legal": "tsx --env-file-if-exists=../../.env prisma/legal.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

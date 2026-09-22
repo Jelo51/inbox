@@ -98,7 +98,7 @@ export function createApp({
 
   app.use(
     '/api/v1',
-    apiV1Router(prisma, mailService, imageStorage, hub ?? createNoopHub(), billingDeps),
+    apiV1Router(prisma, mailService, imageStorage, hub ?? createNoopHub(), billingDeps, logger),
   );
 
   app.use(notFoundHandler);

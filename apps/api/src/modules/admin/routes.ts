@@ -11,6 +11,7 @@ import {
   idSchema,
   listReportsSchema,
   moderateListingSchema,
+  publishLegalDocumentSchema,
   resolveReportSchema,
   suspendUserSchema,
 } from '@inbox/shared';
@@ -22,6 +23,7 @@ import { claimReport, listReports, reportDetail, resolveReport } from './reports
 import { banUser, changeRole, listUsers, suspendUser, unsuspendUser, userDetail } from './users.js';
 import { dashboardStats, listPayments, revenueByMonth } from './stats.js';
 import { readAudit } from './audit.js';
+import { legalDocumentBody, listLegalDocuments, publishLegalDocument } from './legal.js';
 
 function handle(fn: (req: Request, res: Response) => Promise<void>): RequestHandler {
   return (req, res, next) => {
@@ -224,6 +226,46 @@ export function adminRouter(prisma: PrismaClient, mail: MailService): Router {
       const { limit, cursor } = cursorPaginationSchema.parse(req.query);
       const status = typeof req.query.status === 'string' ? req.query.status : undefined;
       res.json(await listPayments(prisma, { limit, cursor, status }));
+    }),
+  );
+
+  // ── Documents légaux ──────────────────────────────────────────────────────
+
+  router.get(
+    '/admin/legal',
+    requireRole('ADMIN'),
+    handle(async (_req, res) => {
+      res.json({ documents: await listLegalDocuments(prisma) });
+    }),
+  );
+
+  // Le corps est servi à part : la liste n'a pas à transporter quatorze textes.
+  router.get(
+    '/admin/legal/:id',
+    requireRole('ADMIN'),
+    handle(async (req, res) => {
+      const id = idSchema.parse(req.params.id);
+      res.json({ document: await legalDocumentBody(prisma, id) });
+    }),
+  );
+
+  router.post(
+    '/admin/legal',
+    requireRole('ADMIN'),
+    handle(async (req, res) => {
+      const input = publishLegalDocumentSchema.parse(req.body);
+      const document = await publishLegalDocument(deps, req.auth!.userId, input, req.ip);
+
+      res.status(201).json({
+        document: {
+          id: document.id,
+          type: document.type,
+          locale: document.locale,
+          version: document.version,
+          effectiveAt: document.effectiveAt,
+          publishedAt: document.publishedAt,
+        },
+      });
     }),
   );
 

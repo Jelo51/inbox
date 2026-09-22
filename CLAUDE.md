@@ -16,6 +16,7 @@ docker compose up
 pnpm install
 pnpm --filter @inbox/shared build      # les autres paquets en dépendent
 pnpm db:migrate                        # migrations Prisma
+pnpm db:legal                          # publication des 14 documents légaux
 pnpm db:seed                           # jeu de démonstration
 pnpm dev                               # API sur :3001, front sur :3000
 
@@ -43,6 +44,7 @@ importent son `dist/`. `pnpm build` le fait dans le bon ordre.
 apps/web        Nuxt 3 en SSR — TypeScript strict, Pinia, Tailwind, i18n fr/en
 apps/api        Express + TypeScript — API REST /api/v1, Socket.IO, node-cron
 packages/shared Schémas Zod, énumérations, constantes, utilitaires communs
+apps/api/legal  Les 14 textes légaux en Markdown, hors de src/ (tsc ne les copie pas)
 docs/           Maquette de référence, conformité, déploiement
 docker/         Images et configuration Nginx
 ```
@@ -251,6 +253,64 @@ marchand. Si c'est confirmé, il faudra un agrégateur couvrant le Cameroun
 - **Les adresses e-mail sont masquées dans la liste des membres** et ne
   s'affichent qu'au détail : un écran partagé n'expose pas toute la base.
 
+### Documents légaux publiés
+
+- **Le texte vit en Markdown dans `apps/api/legal/`, le manifeste dans
+  `src/modules/legal/manifest.ts`.** Un texte juridique se relit, se compare et
+  se fait relire par un juriste ; un littéral TypeScript rendrait tout cela
+  pénible. Les fichiers sont hors de `src/` parce que `tsc` ne recopie pas le
+  Markdown dans `dist/`.
+- **`pnpm db:legal` est séparé de `pnpm db:seed`** : le seed refuse de tourner
+  en production, alors que ce chargement-ci y est indispensable — sans
+  documents publiés, l'inscription répond 503. Il est idempotent.
+- **Une version publiée n'est jamais réécrite.** Un utilisateur a accepté une
+  version identifiée ; en changer le texte a posteriori ferait mentir la preuve
+  d'acceptation. Le chargeur comme le back-office refusent (409) et exigent un
+  nouveau numéro de version.
+- **L'identité de l'éditeur est injectée au rendu, pas à la publication.** Le
+  corps stocké contient des marqueurs `{{editeur.nom}}`, `{{contact.donnees}}`,
+  `{{document.effectiveAt}}`… ; seule la page rendue porte les valeurs. Le jour
+  de l'immatriculation, changer les variables d'environnement suffit — aucun
+  des quatorze textes n'est à republier.
+- **Une variable vide fait disparaître sa ligne entière.** « RCCM : » suivi de
+  rien est pire qu'une absence. La suppression ne touche que les lignes
+  purement structurelles : puce vide, libellé sans valeur, ligne de tableau
+  dont toutes les cellules sauf l'intitulé sont vides. Un marqueur _inconnu_,
+  lui, reste visible : il vaut mieux qu'il saute aux yeux en relecture.
+- **Le slug est en français dans les deux langues** (`/legal/conditions-generales`).
+  Une URL ne se traduit pas, sinon un lien partagé dans un courrier changerait
+  de cible selon la langue du lecteur.
+- **L'acceptation porte sur la version française**, qui fait foi ; chaque
+  version anglaise se termine par une clause de prévalence.
+
+### Données personnelles
+
+- **La suppression de compte est une anonymisation**, pas un effacement de
+  ligne : `Receipt` est en `Restrict` sur son paiement et doit survivre dix
+  ans. Le compte est vidé de tout ce qui identifie une personne — adresse
+  électronique remplacée par une valeur aléatoire unique (vider le champ
+  casserait l'unicité au deuxième compte supprimé), nom, téléphone, annonces,
+  conversations, clés, sessions.
+- **Deux relations exigent une purge explicite** parce qu'elles survivraient à
+  une cascade : `Report.authorId` (en `SetNull`, qui laisserait derrière lui
+  les `DisclosedMessage` — le seul texte de conversation en clair du système)
+  et `PhoneReveal.viewerId`.
+- **Un administrateur ne peut pas supprimer son propre compte** : c'est la
+  façon la plus simple de se retrouver sans aucun administrateur.
+- **L'export sort les messages chiffrés**, avec la sauvegarde de clé. Un export
+  en clair signifierait que le serveur sait déchiffrer, ce qui est faux : le
+  fichier doit refléter le chiffrement, pas le contourner.
+- **Les durées de conservation sont appliquées par des tâches planifiées**
+  (`src/jobs/retention.ts`). Une politique de confidentialité sans tâche pour
+  l'appliquer n'est pas une politique, c'est une déclaration d'intention.
+- **Les messages sont conservés jusqu'à la suppression du compte**, sans durée
+  maximale : ils sont chiffrés, nous ne pouvons ni les lire ni juger de leur
+  péremption. Le point est soumis à un juriste.
+- **La bannière cookies ne s'affiche que si un traceur soumis à consentement
+  est configuré** (`ANALYTICS_REQUIRES_CONSENT`). Umami auto-hébergé ne pose
+  aucun cookie : afficher une bannière à son sujet ferait croire à un choix qui
+  n'existe pas.
+
 ### Cadre juridique
 
 **Le RGPD s'applique**, confirmé en phase 0 : l'éditeur est établi à Reims, en
@@ -322,6 +382,20 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
   périodique. Acceptable pour une démonstration, pas pour la production.
   `binaryTargets` du schéma Prisma inclut `rhel-openssl-3.0.x`, sans quoi le
   client démarre en local et échoue une fois déployé.
+- **Une migration Prisma touche `Listing.searchVector`** dès qu'on modifie un
+  modèle : la colonne est générée par une migration SQL brute, et
+  `Unsupported("tsvector")` fait croire à une dérive. Il faut retirer à la main
+  les lignes `DROP INDEX` / `DROP DEFAULT` du fichier généré, sinon
+  PostgreSQL refuse (« is a generated column »).
+- **Prettier reformate les documents légaux** (`.md`). Une exécution de
+  `pnpm format` après un chargement en base rend la version stockée différente
+  du fichier, et `pnpm db:legal` refuse alors de republier. Formater avant de
+  charger.
+- **Le format de version des documents est strict** (`1.0`, `1.1`, `2.0`) : les
+  tests ne peuvent pas y glisser un suffixe repère et nettoient nommément.
+- **vue-i18n interprète les accolades** : un texte de traduction contenant
+  `{{marqueur}}` est lu comme une interpolation. Décrire les marqueurs sans les
+  écrire.
 - **Aucun emoji** dans l'interface, les e-mails ou les documents légaux. Les
   icônes viennent de `lucide-vue-next`.
 
@@ -352,6 +426,6 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
 | 4. Messagerie chiffrée | fait    |
 | 5. Pro et paiements    | fait    |
 | 6. Modération et admin | fait    |
-| 7. Légal et conformité | à faire |
+| 7. Légal et conformité | fait    |
 | 8. Finitions           | à faire |
 | 9. Déploiement         | à faire |

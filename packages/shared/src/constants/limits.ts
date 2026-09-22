@@ -60,6 +60,8 @@ export const RATE_LIMITS = {
   revealPhone: { points: 10, windowSeconds: 60 * 60 },
   publishListing: { points: 10, windowSeconds: 60 * 60 },
   createReport: { points: 10, windowSeconds: 60 * 60 },
+  /** L'export rassemble toute la base d'un compte : il n'a pas à être répétable à volonté. */
+  dataExport: { points: 3, windowSeconds: 24 * 60 * 60 },
   search: { points: 120, windowSeconds: 60 },
   global: { points: 300, windowSeconds: 60 },
 } as const;
@@ -80,8 +82,15 @@ export const RETENTION_DAYS = {
   inactiveAccountDeletion: 365 * 3,
   expiredListing: 180,
   deletedListing: 30,
-  message: 365,
-  readNotification: 90,
+  /**
+   * Les messages sont conservés **jusqu'à la suppression du compte** : ils sont
+   * chiffrés de bout en bout, nous ne pouvons donc ni les lire ni en juger la
+   * péremption, et les effacer d'office priverait leurs deux auteurs d'un
+   * historique dont eux seuls détiennent la clé.
+   */
+  message: null,
+  /** Vues d'annonces et affichages de numéro : compteurs, pas histoire. */
+  viewTrace: 180,
   authToken: 30,
   revokedSession: 90,
   auditLog: 365 * 5,

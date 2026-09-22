@@ -38,6 +38,7 @@ cp .env.example .env            # ajuster DATABASE_URL et les trois secrets
 pnpm install
 pnpm --filter @inbox/shared build
 pnpm db:migrate
+pnpm db:legal
 pnpm db:seed
 pnpm dev
 ```
@@ -107,6 +108,7 @@ pnpm typecheck      # TypeScript sur les trois paquets
 pnpm test           # tests unitaires et tests d'API
 pnpm test:e2e       # parcours Playwright
 pnpm db:migrate     # migrations Prisma
+pnpm db:legal       # publication des documents légaux (aussi en production)
 pnpm db:seed        # jeu de démonstration
 pnpm db:studio      # explorateur de base
 ```

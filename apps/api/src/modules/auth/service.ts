@@ -237,7 +237,11 @@ export async function login(
     });
   }
 
-  await deps.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });
+  // Une connexion annule l'avertissement d'inactivité : le compte sert encore.
+  await deps.prisma.user.update({
+    where: { id: user.id },
+    data: { lastLoginAt: now, inactivityWarnedAt: null },
+  });
 
   return buildAuthResult(deps, user, context);
 }

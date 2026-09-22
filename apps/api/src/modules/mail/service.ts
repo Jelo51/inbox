@@ -11,6 +11,7 @@ import {
   passwordResetTemplate,
   paymentConfirmedTemplate,
   paymentFailedTemplate,
+  inactiveAccountWarningTemplate,
   renewalNoticeTemplate,
   verifyEmailTemplate,
   type TemplateContext,
@@ -123,5 +124,12 @@ export class MailService {
     details: { reason: string; until: string | null },
   ): Promise<void> {
     await this.deliver(recipient, accountSuspendedTemplate(this.context(recipient), details));
+  }
+
+  async sendInactiveAccountWarning(
+    recipient: MailRecipient,
+    details: { deletionDate: string; monthsInactive: number },
+  ): Promise<void> {
+    await this.deliver(recipient, inactiveAccountWarningTemplate(this.context(recipient), details));
   }
 }

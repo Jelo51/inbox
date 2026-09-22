@@ -5,7 +5,7 @@ seul. Il **ne remplace pas** les documents légaux : ceux-ci sont rédigés pour
 être complets et utilisables en l'état. Il signale les endroits où une erreur
 d'appréciation coûterait cher.
 
-Dernière mise à jour : phase 2 (authentification et comptes).
+Dernière mise à jour : phase 7 (légal et conformité).
 
 ---
 
@@ -31,9 +31,16 @@ l'intuition habituelle.
 
 **Ce qu'il reste à faire valider.**
 
+- **Dénomination exacte de l'autorité camerounaise.** Les documents publiés
+  citent l'« Autorité de Protection des Données à Caractère Personnel (APDP) ».
+  Cette dénomination a été **fournie par le porteur du projet** et n'a pas pu
+  être recoupée avec le texte publié de la loi n° 2024/017 ni avec un acte de
+  création. Si l'autorité porte un autre nom, ou n'est pas encore installée,
+  les sept documents doivent être republiés en version 1.1 : la mention d'une
+  autorité inexistante rendrait le droit de réclamation impraticable.
 - Quelle autorité de contrôle citer, et dans quel ordre : la CNIL au titre du
-  RGPD, l'autorité camerounaise de protection des données au titre de la loi
-  n° 2024/017, ou les deux, avec quelle articulation ?
+  RGPD, l'APDP au titre de la loi n° 2024/017, ou les deux, avec quelle
+  articulation ? Les documents citent aujourd'hui les deux, l'APDP en premier.
 - Quelles formalités préalables auprès de l'autorité camerounaise, compte tenu
   d'un responsable de traitement établi hors du Cameroun ?
 - La désignation d'un délégué à la protection des données est-elle obligatoire ?
@@ -159,3 +166,95 @@ l'inscription, sans vérification d'identité.
 
 **À faire trancher.** Une déclaration sur l'honneur suffit-elle ? Quelle
 conduite tenir si un compte de mineur est signalé ?
+
+---
+
+## 9. Conservation des messages jusqu'à la suppression du compte
+
+Le porteur du projet a retenu : **les messages sont conservés jusqu'à la
+suppression du compte**, sans durée maximale. Le code applique ce choix — il
+n'existe aucune tâche de purge des messages.
+
+**À faire trancher.** Une conservation sans terme est-elle compatible avec le
+principe de limitation de la durée (article 5.1.e du RGPD) ? L'argument retenu
+est que les messages sont chiffrés de bout en bout : le responsable ne peut ni
+les lire, ni juger de leur péremption, et les effacer d'office priverait leurs
+deux auteurs d'un historique dont eux seuls détiennent la clé. Cet argument
+tient-il devant une autorité de contrôle, ou faut-il fixer malgré tout une
+durée (trois ans après le dernier message d'une conversation, par exemple) ?
+
+---
+
+## 10. Suppression de compte par anonymisation
+
+La suppression en libre-service **n'efface pas la ligne du compte** : elle la
+vide de tout ce qui identifie une personne et la marque comme supprimée. La
+raison est technique et comptable — le reçu de paiement doit survivre dix ans,
+et il est rattaché à un paiement lui-même rattaché au compte.
+
+**À faire trancher.**
+
+- Cette anonymisation est-elle suffisante au sens du droit à l'effacement
+  (article 17 du RGPD) ? L'adresse électronique est remplacée par une valeur
+  aléatoire unique, non réversible et sans lien avec l'ancienne ; le nom
+  devient « Compte supprimé ».
+- Les acceptations de documents légaux et les paiements restent rattachés au
+  compte anonymisé. Est-ce le bon équilibre entre le droit à l'effacement et
+  l'obligation de prouver ce qui a été accepté et facturé ?
+- Le journal d'audit conserve les décisions de modération dont la personne a
+  fait l'objet, pendant cinq ans, avec l'identifiant de son compte anonymisé.
+  La durée est-elle défendable ?
+
+---
+
+## 11. Conservation de données d'identification des auteurs de contenu
+
+Une obligation de conserver de quoi identifier les auteurs de contenus publiés
+entrerait en **contradiction directe** avec deux choix déjà faits : la
+troncature systématique des adresses IP, et la suppression de compte par
+anonymisation immédiate.
+
+**À faire trancher, en priorité.** Si une telle obligation existe en droit
+camerounais ou en droit français applicable à l'éditeur, elle change
+l'architecture : il faudrait conserver l'adresse IP complète à la publication,
+ce que le code ne fait nulle part aujourd'hui. Mieux vaut le savoir avant la
+mise en ligne qu'après.
+
+---
+
+## 12. Absence de médiateur de la consommation
+
+**Aucun médiateur de la consommation n'est désigné**, et les conditions
+générales n'en mentionnent aucun. Elles prévoient un règlement amiable par
+courrier électronique, puis la compétence des juridictions camerounaises.
+
+**À faire trancher.** La désignation d'un médiateur est-elle obligatoire pour
+un service vendu à distance à des consommateurs, en droit camerounais comme en
+droit français applicable à un éditeur établi en France ? Si oui, la clause de
+règlement des différends des CGU et des CGV doit être republiée.
+
+---
+
+## 13. Contact par courrier électronique uniquement
+
+Le porteur du projet a retenu : **l'adresse électronique suffit**, aucun numéro
+de téléphone ni formulaire de contact n'est publié.
+
+**À faire trancher.** Les mentions obligatoires d'un éditeur de service en
+ligne exigent-elles un moyen de contact direct supplémentaire ? Les variables
+`PUBLISHER_PHONE` existent et sont vides : les renseigner fait apparaître la
+ligne correspondante dans les documents, sans republication.
+
+---
+
+## 14. Rédaction en deux langues
+
+Les sept documents existent en français et en anglais, chaque version anglaise
+se terminant par une clause de prévalence du français. L'acceptation à
+l'inscription porte sur la **version française**, quelle que soit la langue
+d'affichage.
+
+**À faire trancher.** Faire accepter une version française à un utilisateur qui
+lit l'anglais est-il opposable ? Faut-il au contraire enregistrer l'acceptation
+de la version lue, en maintenant la prévalence du français en cas de
+divergence ?

@@ -74,6 +74,36 @@ export const LEGAL_DOCUMENT_TYPES = [
 ] as const;
 export type LegalDocumentType = (typeof LEGAL_DOCUMENT_TYPES)[number];
 
+/**
+ * Chemin public de chaque document. Le slug est en français quelle que soit la
+ * langue d'affichage : les URL ne se traduisent pas, sans quoi un lien partagé
+ * dans un courrier changerait de cible selon la langue du lecteur.
+ */
+export const LEGAL_DOCUMENT_SLUGS = {
+  MENTIONS_LEGALES: 'mentions-legales',
+  CGU: 'conditions-generales',
+  CGV: 'conditions-de-vente',
+  CONFIDENTIALITE: 'confidentialite',
+  COOKIES: 'cookies',
+  REGLES_PUBLICATION: 'regles-de-publication',
+  CONSEILS_SECURITE: 'conseils-securite',
+} as const satisfies Record<LegalDocumentType, string>;
+
+export function legalDocumentSlug(type: LegalDocumentType): string {
+  return LEGAL_DOCUMENT_SLUGS[type];
+}
+
+/** Accepte indifféremment le slug public et le nom d'énumération. */
+export function legalDocumentTypeFrom(value: string): LegalDocumentType | null {
+  const bySlug = (Object.entries(LEGAL_DOCUMENT_SLUGS) as [LegalDocumentType, string][]).find(
+    ([, slug]) => slug === value,
+  );
+  if (bySlug) return bySlug[0];
+  return (LEGAL_DOCUMENT_TYPES as readonly string[]).includes(value)
+    ? (value as LegalDocumentType)
+    : null;
+}
+
 /** Documents dont l'acceptation explicite est exigée à l'inscription. */
 export const LEGAL_DOCUMENTS_REQUIRING_ACCEPTANCE = ['CGU', 'CONFIDENTIALITE'] as const;
 

@@ -18,3 +18,4 @@ export * from './schemas/message.js';
 export * from './schemas/moderation.js';
 export * from './schemas/billing.js';
 export * from './schemas/account.js';
+export * from './schemas/legal.js';

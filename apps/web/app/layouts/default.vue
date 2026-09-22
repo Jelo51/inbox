@@ -36,5 +36,6 @@ const localePath = useLocalePath();
 
     <SiteFooter />
     <MobileTabBar />
+    <CookieBanner />
   </div>
 </template>

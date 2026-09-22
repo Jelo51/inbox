@@ -427,7 +427,8 @@
       "users": "Membres",
       "payments": "Paiements",
       "audit": "Journal d'audit",
-      "backToSite": "Retour au site"
+      "backToSite": "Retour au site",
+      "legal": "Documents légaux"
     },
     "dashboard": {
       "title": "Tableau de bord",
@@ -579,6 +580,157 @@
         "LEGAL_DOCUMENT_PUBLISHED": "Document légal publié"
       }
     },
-    "loadMore": "Charger la suite"
+    "loadMore": "Charger la suite",
+    "legal": {
+      "nav": "Documents légaux",
+      "title": "Documents légaux",
+      "intro": "Une version publiée est figée : son texte ne se réécrit pas, il se remplace par une version portant un nouveau numéro. Les acceptations déjà recueillies restent rattachées à la version acceptée.",
+      "type": "Document",
+      "locale": "Langue",
+      "version": "Version",
+      "effectiveAt": "En vigueur le",
+      "publishedAt": "Publiée le",
+      "acceptances": "Acceptations",
+      "requiresAcceptance": "À accepter",
+      "draft": "Brouillon",
+      "newVersion": "Publier une nouvelle version",
+      "body": "Corps du document (Markdown)",
+      "bodyHint": "Les marqueurs d'identité — editeur.nom, contact.donnees, document.effectiveAt… — s'écrivent entre doubles accolades et sont remplacés au moment de l'affichage, pas ici.",
+      "titleField": "Titre",
+      "load": "Reprendre ce texte",
+      "publish": "Publier",
+      "publishing": "Publication…",
+      "published": "Version publiée."
+    }
+  },
+  "legal": {
+    "version": "Version {version}",
+    "effectiveAt": "En vigueur depuis le {date}",
+    "history": "Versions précédentes",
+    "historyEmpty": "Aucune version antérieure.",
+    "notPublished": "Ce document n'est pas encore publié.",
+    "authoritative": "La version française fait foi.",
+    "allDocuments": "Tous les documents"
+  },
+  "data": {
+    "title": "Mes données",
+    "intro": "Ce que nous conservons sur vous, comment en obtenir une copie, et comment tout supprimer.",
+    "exportTitle": "Obtenir une copie de mes données",
+    "exportBody": "Un fichier JSON contenant votre compte, vos annonces, vos conversations chiffrées, vos paiements et vos reçus. Les messages y figurent chiffrés : nous ne détenons pas de quoi les ouvrir.",
+    "exportAction": "Télécharger mes données",
+    "exportPending": "Préparation du fichier…",
+    "rightsTitle": "Vos droits",
+    "deleteTitle": "Supprimer mon compte",
+    "deleteBody": "Votre compte, vos annonces, vos conversations et vos clés de chiffrement sont supprimés. Vos reçus de paiement sont conservés dix ans : la loi comptable l'impose, et ils ne portent plus votre nom.",
+    "deleteWarning": "Cette action est définitive. Elle ne peut pas être annulée.",
+    "deletePassword": "Votre mot de passe",
+    "deleteConfirmation": "Saisissez SUPPRIMER pour confirmer",
+    "deleteAction": "Supprimer définitivement mon compte",
+    "deletePending": "Suppression…",
+    "deleteDone": "Votre compte a été supprimé.",
+    "rights": [
+      "Accéder à vos données et en obtenir une copie",
+      "Faire rectifier ce qui est inexact",
+      "Faire effacer votre compte, sans délai ni justification",
+      "Vous opposer à un traitement, et retirer un consentement à tout moment",
+      "Introduire une réclamation auprès de l'autorité de protection des données"
+    ],
+    "rightsMore": "Le détail de chaque droit, et l'autorité à saisir, figurent dans la politique de confidentialité."
+  },
+  "help": {
+    "title": "Centre d'aide",
+    "intro": "Les questions qui reviennent le plus souvent. Si la vôtre n'y est pas, écrivez-nous.",
+    "contactCta": "Nous écrire",
+    "safetyCta": "Lire les conseils de sécurité",
+    "sections": [
+      {
+        "title": "Publier une annonce",
+        "items": [
+          {
+            "q": "Pourquoi mon annonce n'est-elle pas visible tout de suite ?",
+            "a": "Chaque annonce est relue par une personne avant sa mise en ligne. C'est ce qui permet d'écarter les contrefaçons, les produits interdits et les tentatives d'escroquerie avant qu'elles n'atteignent quelqu'un. Comptez quelques heures."
+          },
+          {
+            "q": "Mon annonce a été refusée. Que faire ?",
+            "a": "Le courrier reçu en donne le motif. Corrigez l'annonce et soumettez-la à nouveau : une annonce refusée ne consomme pas de quota."
+          },
+          {
+            "q": "Combien d'annonces puis-je publier ?",
+            "a": "Trois annonces gratuites par mois. Le mois est celui du fuseau de Douala, et seules les annonces réellement publiées sont comptées."
+          },
+          {
+            "q": "Pourquoi modifier mon annonce la remet-elle en attente ?",
+            "a": "Parce qu'il suffirait sinon de publier une annonce anodine puis d'en changer le texte. Seules les modifications de contenu déclenchent une nouvelle relecture."
+          }
+        ]
+      },
+      {
+        "title": "Acheter et vendre",
+        "items": [
+          {
+            "q": "Inbox intervient-il dans la transaction ?",
+            "a": "Non. Inbox met en relation ; le paiement et la remise se font entre vous. Nous ne détenons pas l'argent, ne livrons rien et ne remboursons rien."
+          },
+          {
+            "q": "Pourquoi le numéro du vendeur est-il masqué ?",
+            "a": "Un numéro affiché en clair finit dans les listes de démarchage. Il faut le demander explicitement, et cette demande est enregistrée."
+          },
+          {
+            "q": "Comment signaler une annonce ou un membre ?",
+            "a": "Chaque annonce, chaque profil et chaque conversation porte un bouton de signalement. Signalez même si vous n'avez rien perdu."
+          }
+        ]
+      },
+      {
+        "title": "Messagerie",
+        "items": [
+          {
+            "q": "Pouvez-vous lire mes messages ?",
+            "a": "Non. Ils sont chiffrés de bout en bout : le serveur ne stocke que des octets qu'il ne peut pas ouvrir. C'est aussi pourquoi nous ne pouvons pas arbitrer un litige sans que vous nous transmettiez vous-même la conversation."
+          },
+          {
+            "q": "J'ai changé de téléphone, je ne vois plus mes messages.",
+            "a": "Restaurez votre clé depuis la sauvegarde, avec votre phrase secrète. Sans cette phrase, personne ne peut retrouver vos messages — nous non plus."
+          }
+        ]
+      },
+      {
+        "title": "Compte et abonnement",
+        "items": [
+          {
+            "q": "Comment obtenir une copie de mes données ?",
+            "a": "Depuis la page « Mes données », en un clic. Le fichier est du JSON."
+          },
+          {
+            "q": "Comment supprimer mon compte ?",
+            "a": "Depuis la page « Mes données ». La suppression est immédiate et définitive. Seuls les reçus de paiement sont conservés, sans votre nom, pour la durée imposée par la loi comptable."
+          },
+          {
+            "q": "L'abonnement Pro se renouvelle-t-il tout seul ?",
+            "a": "Non. Aucun prélèvement automatique : vous recevez une relance trois jours avant l'échéance et vous décidez."
+          }
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "title": "Nous contacter",
+    "intro": "Nous répondons par courrier électronique. Choisissez l'adresse qui correspond à votre demande : c'est ce qui nous permet de répondre vite.",
+    "general": "Question générale",
+    "privacy": "Données personnelles et exercice de vos droits",
+    "abuse": "Signaler une annonce, un membre ou un abus",
+    "delay": "Les demandes relatives aux données personnelles reçoivent une réponse dans un délai d'un mois. Si la demande est complexe, nous prévenons de ce délai supplémentaire et de son motif.",
+    "publisher": "Éditeur",
+    "host": "Hébergeur",
+    "director": "Directeur de la publication",
+    "beforeWriting": "Avant d'écrire",
+    "beforeWritingBody": "Pour signaler une annonce ou un membre, le bouton de signalement présent sur la page concernée est plus rapide : il transmet directement la référence à l'équipe de modération."
+  },
+  "cookies": {
+    "title": "Cookies et mesure d'audience",
+    "body": "Inbox dépose des cookies strictement nécessaires au fonctionnement du site, qui n'exigent pas votre accord. Un outil de mesure d'audience soumis à consentement est configuré : vous décidez.",
+    "accept": "Accepter la mesure d'audience",
+    "refuse": "Refuser",
+    "more": "Politique relative aux cookies"
   }
 }

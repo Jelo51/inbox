@@ -4,6 +4,7 @@ import {
   CreditCard,
   Flag,
   LayoutDashboard,
+  Scale,
   ScrollText,
   ShieldCheck,
   Users,
@@ -27,6 +28,7 @@ const links = computed(() =>
     { to: '/admin/membres', icon: Users, label: t('admin.nav.users'), adminOnly: false },
     { to: '/admin/paiements', icon: CreditCard, label: t('admin.nav.payments'), adminOnly: true },
     { to: '/admin/audit', icon: ScrollText, label: t('admin.nav.audit'), adminOnly: false },
+    { to: '/admin/legal', icon: Scale, label: t('admin.nav.legal'), adminOnly: true },
   ].filter((link) => !link.adminOnly || auth.user?.role === 'ADMIN'),
 );
 </script>

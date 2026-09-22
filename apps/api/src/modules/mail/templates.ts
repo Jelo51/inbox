@@ -383,3 +383,40 @@ export function accountSuspendedTemplate(
   };
   return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
 }
+
+/**
+ * Avertissement avant anonymisation d'un compte inactif.
+ *
+ * Conserver indéfiniment les données de quelqu'un qui ne revient pas n'a aucune
+ * base : on prévient, on laisse le temps de revenir, puis on anonymise.
+ */
+export function inactiveAccountWarningTemplate(
+  ctx: TemplateContext,
+  details: { deletionDate: string; monthsInactive: number },
+): RenderedEmail {
+  const fr: Layout = {
+    title: 'Votre compte Inbox va être supprimé',
+    intro: `Vous ne vous êtes pas connecté depuis ${details.monthsInactive} mois.`,
+    body: [
+      `Sans connexion de votre part avant le ${details.deletionDate}, votre compte et vos annonces seront définitivement supprimés.`,
+      'Nous ne gardons pas les données de comptes qui ne servent plus.',
+      'Pour le conserver, il suffit de vous connecter une fois.',
+    ],
+    action: { label: 'Me connecter', url: `${ctx.appUrl}/connexion` },
+    outro:
+      'Vous pouvez aussi demander vous-même la suppression de votre compte, ' +
+      'depuis la page « Mes données ».',
+  };
+  const en: Layout = {
+    title: 'Your Inbox account is about to be deleted',
+    intro: `You have not signed in for ${details.monthsInactive} months.`,
+    body: [
+      `Without a sign-in from you before ${details.deletionDate}, your account and your listings will be permanently deleted.`,
+      'We do not keep the data of accounts that are no longer in use.',
+      'To keep it, simply sign in once.',
+    ],
+    action: { label: 'Sign in', url: `${ctx.appUrl}/connexion` },
+    outro: 'You may also request the deletion of your account yourself, from the "My data" page.',
+  };
+  return render(ctx.locale, ctx.name, ctx.locale === 'en' ? en : fr, ctx.appUrl);
+}

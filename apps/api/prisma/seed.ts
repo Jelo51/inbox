@@ -3,6 +3,7 @@ import { seedCatalog } from './seed/catalog.js';
 import { SEED_CREDENTIALS, seedUsers } from './seed/users.js';
 import { seedListings } from './seed/listings.js';
 import { SEED_PASSPHRASE, seedConversations } from './seed/conversations.js';
+import { publishLegalDocuments } from '../src/modules/legal/publish.js';
 
 /**
  * Jeu de données de démonstration.
@@ -22,6 +23,15 @@ async function main(): Promise<void> {
   const now = new Date();
 
   try {
+    // Avant le garde-fou : sans documents légaux publiés, l'inscription répond
+    // 503. Ce chargement-ci est idempotent et n'a rien d'une donnée de
+    // démonstration — il doit avoir lieu même si le reste du seed est ignoré.
+    console.log('Documents légaux…');
+    const legal = await publishLegalDocuments(prisma, now);
+    console.log(
+      `  ${legal.filter((d) => d.outcome !== 'unchanged').length} publié(s), ${legal.length} au total.`,
+    );
+
     const existing = await prisma.listing.count();
     if (existing > 0) {
       console.log(`Seed ignoré : ${existing} annonces sont déjà présentes.`);

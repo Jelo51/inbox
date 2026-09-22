@@ -427,7 +427,8 @@
       "users": "Members",
       "payments": "Payments",
       "audit": "Audit log",
-      "backToSite": "Back to site"
+      "backToSite": "Back to site",
+      "legal": "Legal documents"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -579,6 +580,157 @@
         "LEGAL_DOCUMENT_PUBLISHED": "Legal document published"
       }
     },
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "legal": {
+      "nav": "Legal documents",
+      "title": "Legal documents",
+      "intro": "A published version is frozen: its text is not rewritten, it is replaced by a version carrying a new number. Acceptances already collected stay attached to the version that was accepted.",
+      "type": "Document",
+      "locale": "Language",
+      "version": "Version",
+      "effectiveAt": "In force on",
+      "publishedAt": "Published on",
+      "acceptances": "Acceptances",
+      "requiresAcceptance": "To be accepted",
+      "draft": "Draft",
+      "newVersion": "Publish a new version",
+      "body": "Document body (Markdown)",
+      "bodyHint": "Identity markers — editeur.nom, contact.donnees, document.effectiveAt… — are written between double braces and are replaced at display time, not here.",
+      "titleField": "Title",
+      "load": "Reuse this text",
+      "publish": "Publish",
+      "publishing": "Publishing…",
+      "published": "Version published."
+    }
+  },
+  "legal": {
+    "version": "Version {version}",
+    "effectiveAt": "In force since {date}",
+    "history": "Previous versions",
+    "historyEmpty": "No earlier version.",
+    "notPublished": "This document is not published yet.",
+    "authoritative": "The French version prevails.",
+    "allDocuments": "All documents"
+  },
+  "data": {
+    "title": "My data",
+    "intro": "What we keep about you, how to obtain a copy, and how to delete everything.",
+    "exportTitle": "Get a copy of my data",
+    "exportBody": "A JSON file containing your account, your listings, your encrypted conversations, your payments and your receipts. Messages are included encrypted: we do not hold anything that can open them.",
+    "exportAction": "Download my data",
+    "exportPending": "Preparing the file…",
+    "rightsTitle": "Your rights",
+    "deleteTitle": "Delete my account",
+    "deleteBody": "Your account, your listings, your conversations and your encryption keys are deleted. Your payment receipts are kept for ten years: accounting law requires it, and they no longer carry your name.",
+    "deleteWarning": "This action is final. It cannot be undone.",
+    "deletePassword": "Your password",
+    "deleteConfirmation": "Type SUPPRIMER to confirm",
+    "deleteAction": "Permanently delete my account",
+    "deletePending": "Deleting…",
+    "deleteDone": "Your account has been deleted.",
+    "rights": [
+      "Access your data and obtain a copy of it",
+      "Have inaccurate data corrected",
+      "Have your account erased, with no delay and no justification",
+      "Object to a processing, and withdraw a consent at any time",
+      "Lodge a complaint with the data protection authority"
+    ],
+    "rightsMore": "The detail of each right, and the authority to address, are set out in the privacy policy."
+  },
+  "help": {
+    "title": "Help centre",
+    "intro": "The questions that come up most often. If yours is not here, write to us.",
+    "contactCta": "Write to us",
+    "safetyCta": "Read the safety advice",
+    "sections": [
+      {
+        "title": "Posting a listing",
+        "items": [
+          {
+            "q": "Why is my listing not visible straight away?",
+            "a": "Every listing is read by a person before it goes online. That is what keeps counterfeits, prohibited products and fraud attempts from reaching anyone. Allow a few hours."
+          },
+          {
+            "q": "My listing was rejected. What now?",
+            "a": "The email you received gives the reason. Correct the listing and submit it again: a rejected listing does not consume any quota."
+          },
+          {
+            "q": "How many listings may I post?",
+            "a": "Three free listings a month. The month is the one of the Douala time zone, and only listings actually published are counted."
+          },
+          {
+            "q": "Why does editing my listing send it back for review?",
+            "a": "Because it would otherwise be enough to publish an innocuous listing and then change its text. Only content changes trigger a new review."
+          }
+        ]
+      },
+      {
+        "title": "Buying and selling",
+        "items": [
+          {
+            "q": "Does Inbox take part in the transaction?",
+            "a": "No. Inbox puts people in touch; payment and handover happen between you. We do not hold the money, deliver nothing and refund nothing."
+          },
+          {
+            "q": "Why is the seller's number hidden?",
+            "a": "A number displayed in the clear ends up in cold-calling lists. It must be asked for explicitly, and that request is recorded."
+          },
+          {
+            "q": "How do I report a listing or a member?",
+            "a": "Every listing, every profile and every conversation carries a report button. Report even if you have lost nothing."
+          }
+        ]
+      },
+      {
+        "title": "Messaging",
+        "items": [
+          {
+            "q": "Can you read my messages?",
+            "a": "No. They are encrypted end to end: the server only stores bytes it cannot open. That is also why we cannot settle a dispute unless you pass the conversation on to us yourself."
+          },
+          {
+            "q": "I changed phones and no longer see my messages.",
+            "a": "Restore your key from the backup, with your secret phrase. Without that phrase, nobody can recover your messages — not even us."
+          }
+        ]
+      },
+      {
+        "title": "Account and subscription",
+        "items": [
+          {
+            "q": "How do I get a copy of my data?",
+            "a": "From the \"My data\" page, in one click. The file is JSON."
+          },
+          {
+            "q": "How do I delete my account?",
+            "a": "From the \"My data\" page. Deletion is immediate and final. Only payment receipts are kept, without your name, for the period accounting law requires."
+          },
+          {
+            "q": "Does the Pro subscription renew by itself?",
+            "a": "No. There is no automatic charge: you receive a reminder three days before expiry and you decide."
+          }
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact us",
+    "intro": "We reply by email. Choose the address matching your request: that is what lets us answer quickly.",
+    "general": "General question",
+    "privacy": "Personal data and exercising your rights",
+    "abuse": "Report a listing, a member or an abuse",
+    "delay": "Requests about personal data receive an answer within one month. If the request is complex, we give notice of that additional delay and of its reason.",
+    "publisher": "Publisher",
+    "host": "Host",
+    "director": "Publication director",
+    "beforeWriting": "Before writing",
+    "beforeWritingBody": "To report a listing or a member, the report button on the page concerned is faster: it sends the reference straight to the moderation team."
+  },
+  "cookies": {
+    "title": "Cookies and audience measurement",
+    "body": "Inbox sets cookies that are strictly necessary for the site to work, and that do not require your agreement. An audience measurement tool subject to consent is configured: you decide.",
+    "accept": "Accept audience measurement",
+    "refuse": "Refuse",
+    "more": "Cookie policy"
   }
 }

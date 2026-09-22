@@ -20,6 +20,7 @@
     "db:migrate": "pnpm --filter @inbox/api db:migrate",
     "db:generate": "pnpm --filter @inbox/api db:generate",
     "db:seed": "pnpm --filter @inbox/api db:seed",
+    "db:legal": "pnpm --filter @inbox/api db:legal",
     "db:reset": "pnpm --filter @inbox/api db:reset",
     "db:studio": "pnpm --filter @inbox/api db:studio",
     "prepare": "husky"

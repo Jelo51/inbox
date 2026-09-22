@@ -77,6 +77,7 @@ services:
                 pnpm --filter @inbox/shared build &&
                 pnpm --filter @inbox/api exec prisma migrate deploy &&
                 pnpm --filter @inbox/api exec prisma generate &&
+                pnpm db:legal &&
                 pnpm db:seed"
     depends_on:
       postgres:

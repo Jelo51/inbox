@@ -65,6 +65,15 @@ const baseSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
   /** Mesure d'audience sans cookie, auto-hébergée. */
+  /**
+   * Umami auto-hébergé ne pose aucun cookie : aucun consentement n'est exigé,
+   * et la bannière reste masquée. Ce drapeau existe pour le jour où un traceur
+   * soumis à consentement serait ajouté.
+   */
+  ANALYTICS_REQUIRES_CONSENT: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
   UMAMI_SCRIPT_URL: z.string().url().optional(),
   UMAMI_WEBSITE_ID: z.string().optional(),
 
