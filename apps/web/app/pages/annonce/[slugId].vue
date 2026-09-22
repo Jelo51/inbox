@@ -191,9 +191,10 @@ async function revealPhone() {
         <!-- Galerie -->
         <div class="card-surface overflow-hidden">
           <div class="aspect-[4/3] w-full bg-canvas">
-            <img
-              v-if="currentImage"
-              :src="currentImage.url"
+            <ListingPhoto
+              :src="currentImage?.url ?? null"
+              :seed="listing.id"
+              contain
               :alt="
                 t('listing.detail.photoOf', {
                   index: activeImage + 1,
@@ -201,8 +202,6 @@ async function revealPhone() {
                   title: listing.title,
                 })
               "
-              class="h-full w-full object-contain"
-              decoding="async"
             />
           </div>
 

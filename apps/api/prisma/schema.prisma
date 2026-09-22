@@ -8,6 +8,10 @@
 
 generator client {
   provider        = "prisma-client-js"
+  // `rhel-openssl-3.0.x` est le moteur attendu par les environnements
+  // serverless de type AWS Lambda, dont Vercel. Sans lui, le client Prisma
+  // démarre en local et échoue une fois déployé.
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
   previewFeatures = ["fullTextSearchPostgres", "postgresqlExtensions"]
 }
 

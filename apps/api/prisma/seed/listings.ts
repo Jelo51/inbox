@@ -2,23 +2,35 @@ import type { PrismaClient } from '@prisma/client';
 import { LISTING_LIMITS, addDays, slugify } from '@inbox/shared';
 import { riskScore, scanForRisk } from '../../src/modules/moderation/risk-scan.js';
 import { DEMO_LISTINGS, PENDING_LISTINGS, type ListingSeed } from './listings-data.js';
+import { generateDemoImage, writeDemoImage } from './images.js';
 import type { SeedAccounts } from './users.js';
 
 /**
  * Les photos de démonstration ne sont pas téléversées sur Cloudinary : le seed
- * doit tourner sans compte tiers. On enregistre des références locales, que le
- * front remplace par un visuel de remplacement lorsque le fichier est absent.
+ * doit tourner sans compte tiers. On génère de vraies images sobres sur le
+ * disque local, et le front affiche son visuel de remplacement là où le
+ * fichier n'existe pas (hébergement sans disque persistant).
  */
-function demoImages(listingSlug: string, count: number, uploadedById: string) {
-  return Array.from({ length: count }, (_, index) => ({
-    publicId: `demo/${listingSlug}-${index + 1}`,
-    uploadedById,
-    width: 1200,
-    height: 900,
-    bytes: 180_000,
-    format: 'webp',
-    position: index,
-  }));
+async function demoImages(listingSlug: string, title: string, count: number, uploadedById: string) {
+  const images = [];
+
+  for (let index = 0; index < count; index += 1) {
+    const publicId = `demo/${listingSlug}-${index + 1}`;
+    const data = await generateDemoImage(title, index + 1, count);
+    await writeDemoImage(publicId, data);
+
+    images.push({
+      publicId,
+      uploadedById,
+      width: 1200,
+      height: 900,
+      bytes: data.byteLength,
+      format: 'webp',
+      position: index,
+    });
+  }
+
+  return images;
 }
 
 async function createListing(
@@ -57,7 +69,7 @@ async function createListing(
       expiresAt: publishedAt ? addDays(publishedAt, LISTING_LIMITS.publishedLifetimeDays) : null,
       // Chiffres plausibles pour que les tris et les statistiques aient du sens.
       viewCount: options.status === 'PUBLISHED' ? 20 + ((seed.title.length * 7) % 400) : 0,
-      images: { create: demoImages(slug, seed.images, seller.id) },
+      images: { create: await demoImages(slug, seed.title, seed.images, seller.id) },
     },
   });
 

@@ -281,6 +281,16 @@ documents légaux suffit — `LegalDocument` en garde l'historique.
 - **Prisma transmet les entiers JavaScript en `bigint`** dans `$queryRaw` :
   une fonction SQL déclarée sur `integer` reste introuvable sans transtypage
   explicite (`${year}::int`).
+- **Le seed génère de vraies images** dans `apps/api/uploads/` : sans elles,
+  l'interface affichait des images cassées, ce qui donne une mauvaise
+  impression de l'ensemble. `ListingPhoto` rend une tuile sobre quand le
+  fichier est absent — indispensable sur un hébergement sans disque persistant.
+- **Déploiement serverless** : `apps/api/api/index.js` réutilise la même
+  application Express. Les tâches planifiées ne tournent pas et le WebSocket
+  n'est pas attaché ; le client bascule alors sur son repli en interrogation
+  périodique. Acceptable pour une démonstration, pas pour la production.
+  `binaryTargets` du schéma Prisma inclut `rhel-openssl-3.0.x`, sans quoi le
+  client démarre en local et échoue une fois déployé.
 - **Aucun emoji** dans l'interface, les e-mails ou les documents légaux. Les
   icônes viennent de `lucide-vue-next`.
 

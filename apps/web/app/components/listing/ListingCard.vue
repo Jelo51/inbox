@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BadgeCheck, ImageOff } from 'lucide-vue-next';
+import { BadgeCheck } from 'lucide-vue-next';
 import { buildListingPath, type PriceUnit } from '@inbox/shared';
 import { useFormat } from '~/composables/useFormat';
 
@@ -30,18 +30,7 @@ const format = useFormat();
       class="flex h-full flex-col focus-visible:outline-none"
     >
       <div class="relative aspect-[4/3] w-full overflow-hidden bg-canvas">
-        <img
-          v-if="item.thumbUrl"
-          :src="item.thumbUrl"
-          :alt="item.title"
-          loading="lazy"
-          decoding="async"
-          class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
-        />
-        <div v-else class="flex h-full w-full flex-col items-center justify-center gap-1 text-grey">
-          <ImageOff class="h-6 w-6" aria-hidden="true" />
-          <span class="text-xs">{{ t('listing.card.noPhoto') }}</span>
-        </div>
+        <ListingPhoto :src="item.thumbUrl" :alt="item.title" :seed="item.id" />
 
         <p
           v-if="item.sellerIsPro"

@@ -86,13 +86,7 @@ async function remove(id: string) {
               :to="localePath(buildListingPath(item.slug, item.id))"
               class="h-20 w-20 shrink-0 overflow-hidden rounded border border-line bg-canvas"
             >
-              <img
-                v-if="item.thumbUrl"
-                :src="item.thumbUrl"
-                :alt="item.title"
-                class="h-full w-full object-cover"
-                loading="lazy"
-              />
+              <ListingPhoto :src="item.thumbUrl" :alt="item.title" :seed="item.id" />
             </NuxtLink>
 
             <div class="min-w-0 flex-1">
